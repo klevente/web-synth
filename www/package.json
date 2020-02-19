@@ -25,6 +25,9 @@
     "url": "https://github.com/klevente/web-synth/issues"
   },
   "homepage": "https://github.com/klevente/web-synth#readme",
+  "dependencies": {
+    "web-synth": "file:../pkg"
+  },
   "devDependencies": {
     "hello-wasm-pack": "^0.1.0",
     "webpack": "^4.29.3",
