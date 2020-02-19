@@ -1,0 +1,35 @@
+{
+  "name": "web-synth-js",
+  "version": "0.1.0",
+  "description": "web-synth JS side",
+  "main": "index.js",
+  "bin": {
+    "create-wasm-app": ".bin/create-wasm-app.js"
+  },
+  "scripts": {
+    "build": "webpack --config webpack.config.js",
+    "start": "webpack-dev-server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/klevente/web-synth"
+  },
+  "keywords": [
+    "webassembly",
+    "wasm",
+    "rust",
+    "webpack"
+  ],
+  "author": "Levente Krizsán <lewalevi@gmail.com>",
+  "bugs": {
+    "url": "https://github.com/klevente/web-synth/issues"
+  },
+  "homepage": "https://github.com/klevente/web-synth#readme",
+  "devDependencies": {
+    "hello-wasm-pack": "^0.1.0",
+    "webpack": "^4.29.3",
+    "webpack-cli": "^3.1.0",
+    "webpack-dev-server": "^3.1.5",
+    "copy-webpack-plugin": "^5.0.0"
+  }
+}
