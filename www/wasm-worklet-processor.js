@@ -1,7 +1,11 @@
 import { Oscillator } from './node_modules/web-synth';
 import { memory } from './node_modules/web-synth/web_synth_bg';
 
-export const filename = 'wasm-worklet-processor.js';
+var AudioWorkletProcessor = AudioWorkletProcessor || function () {
+    this.process = function (inputs, outputs, parameters) { }
+};
+
+var registerProcessor = registerProcessor || ((name, type) => {});
 
 export class WasmWorkletProcessor extends AudioWorkletProcessor {
     constructor() {
@@ -11,7 +15,7 @@ export class WasmWorkletProcessor extends AudioWorkletProcessor {
         console.log('constructed');
     }
 
-    process(inputs, outputs, parameters) {
+    process(inputs, outputs) {
         let input = inputs[0];
         let output = outputs[0];
         let channelCount = input.length;

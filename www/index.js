@@ -1,8 +1,9 @@
 let context;
 
 const init = async context => {
-    const filename = (await import('./wasm-worklet-processor')).filename;
-    await context.audioWorklet.addModule(filename);
+    await import('./wasm-worklet-processor');
+    // require('./wasm-worklet-processor');
+    await context.audioWorklet.addModule('wasm-worklet-processor.js');
     const bypasser = new AudioWorkletNode(context, 'wasm-worklet-processor');
     bypasser.connect(context.destination);
 

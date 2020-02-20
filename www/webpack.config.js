@@ -12,7 +12,6 @@ module.exports = {
         // new CopyWebpackPlugin(['index.html'])
         new CopyWebpackPlugin([
             { from: 'index.html', to: 'index.html' },
-            { from: 'wasm-worklet-processor.js', to: 'wasm-worklet-processor.js' }
         ])
     ],
 };
