@@ -1,12 +1,14 @@
-import { Oscillator } from 'web-synth';
-import { memory } from 'web-synth/web_synth_bg';
+import { Oscillator } from './node_modules/web-synth';
+import { memory } from './node_modules/web-synth/web_synth_bg';
 
+export const filename = 'wasm-worklet-processor.js';
 
-class WasmWorkletProcessor extends AudioWorkletProcessor {
+export class WasmWorkletProcessor extends AudioWorkletProcessor {
     constructor() {
         super();
-
+        console.log('constructing');
         this.oscillator = Oscillator.new();
+        console.log('constructed');
     }
 
     process(inputs, outputs, parameters) {
