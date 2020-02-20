@@ -1,5 +1,5 @@
 [package]
-name = "web-synth-dummy"
+name = "web-synth"
 version = "0.1.0"
 authors = ["Krizsán Levente <lewalevi@gmail.com>"]
 edition = "2018"
