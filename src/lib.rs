@@ -8,19 +8,9 @@ use wasm_bindgen::prelude::*;
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
-#[wasm_bindgen]
-extern {
-    fn alert(s: &str);
-}
+#[wasm_bindgen(start)]
+pub fn main() {
 
-#[wasm_bindgen]
-pub fn greet() {
-    alert("Hello, web-synth!");
-}
-
-#[wasm_bindgen]
-pub fn greet_num(num: i32) {
-    alert(&format!("Number is {}", num));
 }
 
 #[wasm_bindgen]
@@ -37,10 +27,6 @@ impl Oscillator {
             test: 1,
             samples: [0.0; 128]
         }
-    }
-
-    pub fn test(&self) {
-        greet_num(self.test);
     }
 
     pub fn process(&self) -> *const f32 {

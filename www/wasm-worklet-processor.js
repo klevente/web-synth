@@ -1,18 +1,28 @@
-import { Oscillator } from './node_modules/web-synth';
-import { memory } from './node_modules/web-synth/web_synth_bg';
+// import { Oscillator } from './node_modules/web-synth';
+// import { memory } from './node_modules/web-synth/web_synth_bg';
 
-var AudioWorkletProcessor = AudioWorkletProcessor || function () {
-    this.process = function (inputs, outputs, parameters) { }
-};
-
-var registerProcessor = registerProcessor || ((name, type) => {});
 
 export class WasmWorkletProcessor extends AudioWorkletProcessor {
     constructor() {
         super();
-        console.log('constructing');
-        this.oscillator = Oscillator.new();
-        console.log('constructed');
+
+        this.initWasm();
+        /*his.port.onmessage = e => {
+            if (e.data.type === 'load') {
+                WebAssembly.instantiate(e.data.data, {
+                    module: websynth
+                }).then(w => {
+                    this.wasm = w.instance;
+                    this.o = require('./node_modules/web-synth');
+                    this.memory = this.wasm.exports.memory;
+                    this.oscillator = this.o.Oscillator.new();
+                })
+            }
+        };*/
+    }
+
+    async initWasm() {
+        // await init();
     }
 
     process(inputs, outputs) {
@@ -22,7 +32,9 @@ export class WasmWorkletProcessor extends AudioWorkletProcessor {
         const ptr = this.oscillator.process();
         const samples = new Float32Array(memory.buffer, ptr, 128);
         output[0].set(samples);
+        return true;
     }
 }
 
 registerProcessor('wasm-worklet-processor', WasmWorkletProcessor);
+
