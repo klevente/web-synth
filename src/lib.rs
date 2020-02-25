@@ -15,22 +15,49 @@ pub fn main() {
 
 #[wasm_bindgen]
 pub struct Oscillator {
-    test: i32,
-    samples: [f32; 128]
+    output: [f32; 128]
 }
 
 #[wasm_bindgen]
 impl Oscillator {
-
     pub fn new() -> Oscillator {
         Oscillator {
-            test: 1,
-            samples: [0.0; 128]
+            output: [0.0; 128]
         }
     }
 
     pub fn process(&self) -> *const f32 {
         // do processing here
         self.samples.as_ptr()
+    }
+}
+
+#[wasm_bindgen]
+pub struct Effect {
+    input: [f32; 128],
+    output: [f32; 128]
+}
+
+#[wasm_bindgen]
+impl Effect {
+    pub fn new() -> Effect {
+        Effect {
+            input: [0.0; 128],
+            output: [0.0; 128]
+        }
+    }
+
+    pub fn process(&mut self) {
+        for (i, elem) in self.input.iter().enumerate() {
+            self.output[i] = *elem;
+        }
+    }
+
+    pub fn get_input(&mut self) -> *mut f32 {
+        self.input.as_mut_ptr()
+    }
+
+    pub fn get_output(&self) -> *const f32 {
+        self.input.as_ptr()
     }
 }
