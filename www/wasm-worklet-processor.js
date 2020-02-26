@@ -3,6 +3,8 @@ import init, { Oscillator } from '/pkg/web_synth.js';
 export class WasmWorkletProcessor extends AudioWorkletProcessor {
     constructor() {
         super();
+        this.baseFreq = 440.0;
+        this.volume = 0.5;
         this.initMessagePort();
     }
 
@@ -11,6 +13,18 @@ export class WasmWorkletProcessor extends AudioWorkletProcessor {
             if (e.data.type === 'load') {
                 this.initWasm(e.data.data)
                     .then(() => console.log('loaded wasm!'));
+            }
+            if (e.data.type === 'higher') {
+                this.baseFreq *= 2;
+            }
+            if (e.data.type === 'lower') {
+                this.baseFreq /= 2;
+            }
+            if (e.data.type === 'louder') {
+                this.volume += 0.1;
+            }
+            if (e.data.type === 'quieter') {
+                this.volume -= 0.1;
             }
         };
     }
@@ -26,10 +40,10 @@ export class WasmWorkletProcessor extends AudioWorkletProcessor {
         let input = inputs[0];
         let output = outputs[0];
         let channelCount = input.length;
-        // const ptr = this.oscillator.process();
-        // const samples = new Float32Array(memory.buffer, ptr, 128);
-        // output[0].set(samples);
-        // output[0] = input[0].map(sample => sample * 0.1);
+        const ptr = this.oscillator.process(currentTime, this.baseFreq, this.volume);
+        const samples = new Float32Array(this.memory.buffer, ptr, 128);
+        console.log(samples);
+        output[0].set(samples);
         return true;
     }
 }

@@ -1,10 +1,11 @@
 let context;
 let loaded = false;
+let worklet;
 
 const init = async context => {
     try {
         await context.audioWorklet.addModule('wasm-worklet-processor.js');
-        const worklet = new AudioWorkletNode(context, 'wasm-worklet-processor');
+        worklet = new AudioWorkletNode(context, 'wasm-worklet-processor');
         const input = context.createOscillator();
         input.type = 'sine';
         input.frequency.setValueAtTime(100, context.currentTime);
@@ -43,5 +44,17 @@ window.onclick = function () {
     if (loaded) {
         context.resume()
             .then(() => console.log('context resumed'));
+    }
+};
+
+window.onkeypress = function (event) {
+    if (event.key === 'q') {
+        worklet.port.postMessage({ type: 'higher' });
+    } else if (event.key === 'a') {
+        worklet.port.postMessage({ type: 'lower' });
+    } else if (event.key === 'e') {
+        worklet.port.postMessage({ type: 'louder' });
+    } else if (event.key === 'd') {
+        worklet.port.postMessage({type: 'quieter' });
     }
 };
