@@ -55,6 +55,18 @@ window.onkeypress = function (event) {
     } else if (event.key === 'e') {
         worklet.port.postMessage({ type: 'louder' });
     } else if (event.key === 'd') {
-        worklet.port.postMessage({type: 'quieter' });
+        worklet.port.postMessage({ type: 'quieter' });
+    } else if (event.key === 'c') {
+        worklet.port.postMessage({ type: 'toggleDistortion' });
+    } else if (event.key === 'v') {
+        worklet.port.postMessage({ type: 'toggleFuzz' });
+    } else if (event.key === 'i') {
+        worklet.port.postMessage({ type: 'increaseFuzz' })
+    } else if (event.key === 'k') {
+        worklet.port.postMessage({ type: 'decreaseFuzz' })
+    } else if (event.key === 'o') {
+        worklet.port.postMessage({ type: 'increaseMix' })
+    } else if (event.key === 'l') {
+        worklet.port.postMessage({ type: 'decreaseMix' })
     }
 };
