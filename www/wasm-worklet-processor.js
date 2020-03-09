@@ -1,4 +1,4 @@
-import init, { Oscillator } from '/pkg/web_synth.js';
+import init, { Oscillator, Synthethizer } from '/pkg/web_synth.js';
 
 export class WasmWorkletProcessor extends AudioWorkletProcessor {
     constructor() {
@@ -63,6 +63,9 @@ export class WasmWorkletProcessor extends AudioWorkletProcessor {
         this.oscillator = Oscillator.new();
         this.outSamples = this.oscillator.get_ptr();
         this.oscillator.set_fuzz_params(this.gain, this.mix);
+
+        this.synthetizer = Synthethizer.new();
+        this.outSynthSamples = this.synthetizer.get_ptr();
     }
 
     scale(noteId) {
@@ -75,15 +78,17 @@ export class WasmWorkletProcessor extends AudioWorkletProcessor {
         let input = inputs[0];
         let output = outputs[0];
         let channelCount = input.length;
-        this.oscillator.process(currentTime, this.baseFreq, this.volume);
+        /*this.oscillator.process(currentTime, this.baseFreq, this.volume);
         if (this.distort) {
             this.oscillator.distort();
         }
         if (this.fuzz) {
             this.oscillator.fuzz();
         }
-        const samples = new Float32Array(this.memory.buffer, this.outSamples, 128);
+        const samples = new Float32Array(this.memory.buffer, this.outSamples, 128);*/
         // console.log(samples);
+        this.synthetizer.process();
+        const samples = new Float32Array(this.memory.buffer, this.outSynthSamples, 128);
         output[0].set(samples);
         return true;
     }

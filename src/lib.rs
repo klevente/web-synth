@@ -4,6 +4,9 @@ mod web_synth;
 use wasm_bindgen::prelude::*;
 use std::f32::consts::PI;
 use std::f32::INFINITY;
+use crate::web_synth::{Source, SAMPLE_SIZE};
+use crate::web_synth::SAMPLE_RATE;
+use crate::web_synth::oscillators::{SineOscillator, SquareOscillator};
 
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
@@ -11,6 +14,59 @@ use std::f32::INFINITY;
 #[cfg(feature = "wee_alloc")]
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+
+#[wasm_bindgen]
+pub struct Synthethizer {
+    out_samples: [f32; 128],
+    source1: Box<dyn Source>,
+    source2: Box<dyn Source>,
+    sources: Vec<Box<dyn Source>>,
+
+    sin_time: f32,
+    sin_delta_time: f32,
+    sample_count: u32
+}
+
+#[wasm_bindgen]
+impl Synthethizer {
+
+    pub fn new() -> Synthethizer {
+        Synthethizer {
+            out_samples: [0.0; 128],
+            source1: Box::new(SineOscillator::new(440.0, 0.01, 5.0)),
+            source2: Box::new(SquareOscillator::new(440.0, 0.0, 0.0)),
+            sources: vec![Box::new(SineOscillator::new(440.0, 0.01, 5.0)), Box::new(SquareOscillator::new(440.0, 0.0, 0.0))],
+
+            sin_time: 0.0,
+            sin_delta_time: 1.0 / SAMPLE_RATE,
+            sample_count: 0
+        }
+    }
+
+    pub fn get_ptr(&self) -> *const f32 {
+        self.out_samples.as_ptr()
+    }
+
+    pub fn process(&mut self) {
+        let s1 = self.source1.get_sample_block(self.sin_time);
+        // let s2 = self.source2.get_sample_block(self.sin_time);
+        let s2 = [0.0; 128];
+        self.sample_count += SAMPLE_SIZE as u32;
+        self.sin_time += self.sin_delta_time * SAMPLE_SIZE as f32;
+        for i in 0..SAMPLE_SIZE {
+            self.out_samples[i] = s1[i] + s2[i];
+        }
+
+        // TODO: refactor to only use vectored version
+        self.out_samples = [0.0; 128];
+        for s in self.sources {
+            let samp = s.get_sample_block(self.sin_time);
+            for i in 0..SAMPLE_SIZE {
+                self.out_samples[i] += samp[i];
+            }
+        }
+    }
+}
 
 #[wasm_bindgen]
 pub struct Oscillator {

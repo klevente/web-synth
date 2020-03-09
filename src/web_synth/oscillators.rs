@@ -21,6 +21,22 @@ fn generate_samples<G>(t: f32, freq_hz: f32, lfo_amplitude: f32, lfo_freq_hz: f3
     }
 }
 
+struct OscillatorParams {
+    freq_hz: f32,
+    lfo_amplitude: f32,
+    lfo_freq_hz: f32
+}
+
+impl OscillatorParams {
+    pub fn new(freq_hz: f32, lfo_amplitude: f32, lfo_freq_hz: f32) -> OscillatorParams {
+        OscillatorParams {
+            freq_hz,
+            lfo_amplitude,
+            lfo_freq_hz
+        }
+    }
+}
+
 pub struct SineOscillator {
     freq_hz: f32,
     lfo_amplitude: f32,
