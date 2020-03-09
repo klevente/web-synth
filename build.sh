@@ -1,1 +1,1 @@
-wasm-pack build --target web
+wasm-pack build --target web && node fix-js-bindings.js
