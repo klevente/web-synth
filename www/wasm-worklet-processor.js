@@ -89,6 +89,7 @@ export class WasmWorkletProcessor extends AudioWorkletProcessor {
         // console.log(samples);
         this.synthetizer.process();
         const samples = new Float32Array(this.memory.buffer, this.outSynthSamples, 128);
+        this.port.postMessage({ type: 'samples', samples });
         output[0].set(samples);
         return true;
     }

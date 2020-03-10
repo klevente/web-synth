@@ -59,7 +59,7 @@ impl Synthethizer {
 
         // TODO: refactor to only use vectored version
         self.out_samples = [0.0; 128];
-        for s in self.sources {
+        for s in self.sources.iter() {
             let samp = s.get_sample_block(self.sin_time);
             for i in 0..SAMPLE_SIZE {
                 self.out_samples[i] += samp[i];

@@ -1,6 +1,8 @@
 let context;
 let loaded = false;
 let worklet;
+const canvas = document.getElementById('canvas').getContext('2d');
+canvas.fillStyle = 'black';
 
 const init = async context => {
     try {
@@ -16,6 +18,16 @@ const init = async context => {
         // worklet.connect(context.destination);
         // loaded = true;
 
+        worklet.port.onmessage = function (event) {
+            canvas.beginPath();
+            canvas.moveTo(0, 0);
+            let x = 0;
+            for (const s of event.data.samples) {
+                canvas.lineTo(x, s);
+                x += 1 / 44100;
+            }
+            canvas.stroke();
+        };
 
         fetch('/pkg/web_synth_bg.wasm')
             .then(r => r.arrayBuffer())
@@ -61,12 +73,12 @@ window.onkeypress = function (event) {
     } else if (event.key === 'v') {
         worklet.port.postMessage({ type: 'toggleFuzz' });
     } else if (event.key === 'i') {
-        worklet.port.postMessage({ type: 'increaseFuzz' })
+        worklet.port.postMessage({ type: 'increaseFuzz' });
     } else if (event.key === 'k') {
-        worklet.port.postMessage({ type: 'decreaseFuzz' })
+        worklet.port.postMessage({ type: 'decreaseFuzz' });
     } else if (event.key === 'o') {
-        worklet.port.postMessage({ type: 'increaseMix' })
+        worklet.port.postMessage({ type: 'increaseMix' });
     } else if (event.key === 'l') {
-        worklet.port.postMessage({ type: 'decreaseMix' })
+        worklet.port.postMessage({ type: 'decreaseMix' });
     }
 };

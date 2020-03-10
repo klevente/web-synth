@@ -1,6 +1,6 @@
 pub mod oscillators;
 pub mod envelopes;
-pub mod synths;
+pub mod instruments;
 
 pub(crate) const SAMPLE_RATE: f32 = 44100.0;
 pub(crate) const SAMPLE_SIZE: usize = 128;
