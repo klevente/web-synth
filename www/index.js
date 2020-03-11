@@ -18,7 +18,7 @@ const init = async context => {
         // worklet.connect(context.destination);
         // loaded = true;
 
-        worklet.port.onmessage = function (event) {
+        /*worklet.port.onmessage = function (event) {
             canvas.beginPath();
             canvas.moveTo(0, 0);
             let x = 0;
@@ -27,7 +27,13 @@ const init = async context => {
                 x += 1 / 44100;
             }
             canvas.stroke();
-        };
+        };*/
+
+        canvas.beginPath();
+        canvas.moveTo(0, 0);
+        canvas.lineTo(50, 50);
+        canvas.lineTo(20, 70);
+        canvas.stroke();
 
         fetch('/pkg/web_synth_bg.wasm')
             .then(r => r.arrayBuffer())
