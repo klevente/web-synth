@@ -21,25 +21,17 @@ fn generate_samples<G>(t: f32, freq_hz: f32, lfo_amplitude: f32, lfo_freq_hz: f3
     }
 }
 
-pub fn sine_osc(t: f32, freq_hz: f32, lfo_amplitude: f32, lfo_freq_hz: f32) -> [f32; 128] {
-    let mut samples: [f32; 128] = [0.0; 128];
-    generate_samples(t, freq_hz, lfo_amplitude, lfo_freq_hz, &mut samples[..], |f| f.sin());
-    samples
+pub fn sine_osc(t: f32, freq_hz: f32, lfo_amplitude: f32, lfo_freq_hz: f32) -> f32 {
+    modulate_freq(t, freq_hz, lfo_amplitude, lfo_freq_hz).sin()
 }
 
-pub fn square_osc(t: f32, freq_hz: f32, lfo_amplitude: f32, lfo_freq_hz: f32) -> [f32; 128] {
-    let mut samples: [f32; 128] = [0.0; 128];
-    generate_samples(t, freq_hz, lfo_amplitude, lfo_freq_hz, &mut samples[..], |f| {
-       let sine_sample = f.sin();
-        if sine_sample > 0.0 { 1.0 } else { -1.0 }
-    });
-    samples
+pub fn square_osc(t: f32, freq_hz: f32, lfo_amplitude: f32, lfo_freq_hz: f32) -> f32 {
+    let sine_sample = sine_osc(t, freq_hz, lfo_amplitude, lfo_freq_hz);
+    if sine_sample > 0.0 { 1.0 } else { -1.0 }
 }
 
-pub fn triangle_osc(t: f32, freq_hz: f32, lfo_amplitude: f32, lfo_freq_hz: f32) -> [f32; 128] {
-    let mut samples: [f32; 128] = [0.0; 128];
-    generate_samples(t, freq_hz, lfo_amplitude, lfo_freq_hz, &mut samples[..], |f| (freq.sin() * (2.0 / PI)).asin());
-    samples
+pub fn triangle_osc(t: f32, freq_hz: f32, lfo_amplitude: f32, lfo_freq_hz: f32) -> f32 {
+    (sine_osc(t, freq_hz, lfo_amplitude, lfo_freq_hz) * (2.0 / PI)).asin()
 }
 
 pub struct SineOscillator {
