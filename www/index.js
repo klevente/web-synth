@@ -3,6 +3,7 @@ let loaded = false;
 let worklet;
 const canvas = document.getElementById('canvas').getContext('2d');
 canvas.fillStyle = 'black';
+const keysPressed = new Set();
 
 const init = async context => {
     try {
@@ -87,4 +88,14 @@ window.onkeypress = function (event) {
     } else if (event.key === 'l') {
         worklet.port.postMessage({ type: 'decreaseMix' });
     }
+};
+
+document.onkeydown = e => {
+    keysPressed.add(e.key);
+    console.log(keysPressed);
+};
+
+document.onkeyup = e => {
+    keysPressed.delete(e.key);
+    console.log(keysPressed);
 };

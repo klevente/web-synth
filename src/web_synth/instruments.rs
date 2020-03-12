@@ -1,4 +1,4 @@
-use crate::web_synth::envelopes::Envelope;
+use crate::web_synth::envelopes::{Envelope, ADSREnvelope};
 use crate::web_synth::{Note, scale, Source, SAMPLE_SIZE, SAMPLE_RATE};
 use crate::web_synth::oscillators::sine_osc;
 
@@ -8,18 +8,18 @@ fn calc_offset_time(t: f32, sample_idx: usize) -> f32 {
 
 // Synth with oscillator(s) and an envelope
 pub trait Instrument {
-    fn sound(&self, t: f32, note: Note, &mut note_finished: bool) -> f32;
+    fn sound(&self, t: f32, note: &Note, note_finished: &mut bool) -> f32;
 }
 
 pub struct Bell {
-    envelope: Box<dyn Envelope>
+    envelope: ADSREnvelope
 }
 
 impl Instrument for Bell {
-    fn sound(&self, t: f32, note: Note, &mut note_finished: bool) -> f32 {
+    fn sound(&self, t: f32, note: &Note, note_finished: &mut bool) -> f32 {
         let amplitude = self.envelope.amplitude(t, note.on, note.off);
         if amplitude <= 0.0 {
-            note_finished = true;
+            *note_finished = true;
         }
 
         let sound =
@@ -31,12 +31,12 @@ impl Instrument for Bell {
     }
 }
 
-impl Source for Bell {
-    fn get_sample_block(&self, t: f32) -> [f32; 128] {
-        let mut samples: [f32; 128] = [0.0; 128];
-        for i in 0..SAMPLE_SIZE {
-            samples[i] = self.sound(calc_offset_time(t, i));
+impl Bell {
+    pub const fn new() -> Bell {
+        Bell {
+            envelope: ADSREnvelope::new()
         }
-        samples
     }
 }
+
+pub(crate) const BELL: Bell = Bell::new();

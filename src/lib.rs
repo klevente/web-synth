@@ -65,6 +65,7 @@ impl Synthethizer {
                 self.out_samples[i] += samp[i];
             }
         }
+        self.out_samples = [0.0; 128];
     }
 }
 
