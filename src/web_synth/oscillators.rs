@@ -26,8 +26,9 @@ pub fn sine_osc(t: f32, freq_hz: f32, lfo_amplitude: f32, lfo_freq_hz: f32) -> f
 }
 
 pub fn square_osc(t: f32, freq_hz: f32, lfo_amplitude: f32, lfo_freq_hz: f32) -> f32 {
-    let sine_sample = sine_osc(t, freq_hz, lfo_amplitude, lfo_freq_hz);
-    if sine_sample > 0.0 { 1.0 } else { -1.0 }
+    // let sine_sample = sine_osc(t, freq_hz, lfo_amplitude, lfo_freq_hz);
+    // if sine_sample > 0.0 { 1.0 } else { -1.0 }
+    sine_osc(t, freq_hz, lfo_amplitude, lfo_freq_hz).signum()
 }
 
 pub fn triangle_osc(t: f32, freq_hz: f32, lfo_amplitude: f32, lfo_freq_hz: f32) -> f32 {

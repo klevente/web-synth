@@ -3,21 +3,14 @@ let loaded = false;
 let worklet;
 const canvas = document.getElementById('canvas').getContext('2d');
 canvas.fillStyle = 'black';
-const keysPressed = new Set();
+const keysPressed = Array(16).fill(false);
 
 const init = async context => {
     try {
         await context.audioWorklet.addModule('wasm-worklet-processor.js');
         worklet = new AudioWorkletNode(context, 'wasm-worklet-processor');
-        const input = context.createOscillator();
-        input.type = 'sine';
-        input.frequency.setValueAtTime(100, context.currentTime);
 
-        input.connect(worklet).connect(context.destination);
-        // input.connect(context.destination);
-        // input.start();
-        // worklet.connect(context.destination);
-        // loaded = true;
+        worklet.connect(context.destination);
 
         /*worklet.port.onmessage = function (event) {
             canvas.beginPath();
@@ -40,17 +33,12 @@ const init = async context => {
             .then(r => r.arrayBuffer())
             .then(r => {
                 worklet.port.postMessage({ type: 'load', data: r });
-                input.start();
+                // worklet.start();
                 loaded = true;
             });
     } catch (e) {
         console.error(e);
     }
-
-    // const oscillator = context.createOscillator();
-    // oscillator.type = 'sine';
-    // oscillator.frequency.setValueAtTime(440, context.currentTime);
-    // oscillator.connect(context.destination);
 };
 
 window.onload = function () {
@@ -66,36 +54,22 @@ window.onclick = function () {
     }
 };
 
-window.onkeypress = function (event) {
-    if (event.key === 'q') {
-        worklet.port.postMessage({ type: 'higher' });
-    } else if (event.key === 'a') {
-        worklet.port.postMessage({ type: 'lower' });
-    } else if (event.key === 'e') {
-        worklet.port.postMessage({ type: 'louder' });
-    } else if (event.key === 'd') {
-        worklet.port.postMessage({ type: 'quieter' });
-    } else if (event.key === 'c') {
-        worklet.port.postMessage({ type: 'toggleDistortion' });
-    } else if (event.key === 'v') {
-        worklet.port.postMessage({ type: 'toggleFuzz' });
-    } else if (event.key === 'i') {
-        worklet.port.postMessage({ type: 'increaseFuzz' });
-    } else if (event.key === 'k') {
-        worklet.port.postMessage({ type: 'decreaseFuzz' });
-    } else if (event.key === 'o') {
-        worklet.port.postMessage({ type: 'increaseMix' });
-    } else if (event.key === 'l') {
-        worklet.port.postMessage({ type: 'decreaseMix' });
+const keyLayout = 'zsxcfvgbnjmk,l./';
+
+function getKeyIndex(key) {
+    return keyLayout.indexOf(key);
+}
+
+document.onkeydown = e => {
+    if (keyLayout.includes(e.key)) {
+        keysPressed[getKeyIndex(e.key)] = true;
+        worklet.port.postMessage({ type: 'keys', keysPressed });
     }
 };
 
-document.onkeydown = e => {
-    keysPressed.add(e.key);
-    console.log(keysPressed);
-};
-
 document.onkeyup = e => {
-    keysPressed.delete(e.key);
-    console.log(keysPressed);
+    if (keyLayout.includes(e.key)) {
+        keysPressed[getKeyIndex(e.key)] = false;
+        worklet.port.postMessage({ type: 'keys', keysPressed });
+    }
 };

@@ -4,9 +4,10 @@ mod web_synth;
 use wasm_bindgen::prelude::*;
 use std::f32::consts::PI;
 use std::f32::INFINITY;
-use crate::web_synth::{Source, SAMPLE_SIZE};
+use crate::web_synth::{Source, SAMPLE_SIZE, MutSource};
 use crate::web_synth::SAMPLE_RATE;
 use crate::web_synth::oscillators::{SineOscillator, SquareOscillator};
+use crate::web_synth::keyboard::Keyboard;
 
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
@@ -16,7 +17,49 @@ use crate::web_synth::oscillators::{SineOscillator, SquareOscillator};
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
-pub struct Synthethizer {
+pub struct KeyboardSynthesizer {
+    out_samples: [f32; 128],
+    keyboard: Keyboard,
+    source: SineOscillator,
+    sin_time: f32,
+    sin_delta_time: f32
+}
+
+#[wasm_bindgen]
+impl KeyboardSynthesizer {
+
+    pub fn new() -> KeyboardSynthesizer {
+        KeyboardSynthesizer {
+            out_samples: [0.0; 128],
+            keyboard: Keyboard::new(),
+            source: SineOscillator::new(440.0, 0.01, 5.0),
+            sin_time: 0.0,
+            sin_delta_time: 1.0 / SAMPLE_RATE,
+        }
+    }
+
+    pub fn get_ptr(&self) -> *const f32 {
+        self.out_samples.as_ptr()
+    }
+
+    pub fn get_keys_ptr(&self) -> *const bool {
+        self.keyboard.get_keys_ptr()
+    }
+
+    pub fn process(&mut self) {
+        self.keyboard.update_notes(self.sin_time);
+        let s1 = self.keyboard.get_sample_block(self.sin_time);
+        // let s2 = self.source.get_sample_block(self.sin_time);
+        self.sin_time += self.sin_delta_time * SAMPLE_SIZE as f32;
+        self.out_samples = [0.0; 128];
+        for i in 0..SAMPLE_SIZE {
+            self.out_samples[i] += s1[i];
+        }
+    }
+}
+
+#[wasm_bindgen]
+pub struct Synthesizer {
     out_samples: [f32; 128],
     source1: Box<dyn Source>,
     source2: Box<dyn Source>,
@@ -28,10 +71,10 @@ pub struct Synthethizer {
 }
 
 #[wasm_bindgen]
-impl Synthethizer {
+impl Synthesizer {
 
-    pub fn new() -> Synthethizer {
-        Synthethizer {
+    pub fn new() -> Synthesizer {
+        Synthesizer {
             out_samples: [0.0; 128],
             source1: Box::new(SineOscillator::new(440.0, 0.01, 5.0)),
             source2: Box::new(SquareOscillator::new(440.0, 0.0, 0.0)),

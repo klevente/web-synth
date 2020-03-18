@@ -1,19 +1,25 @@
-use crate::web_synth::{Source, Note, SAMPLE_SIZE, MutSource};
-use crate::web_synth::instruments::{Instrument, BELL};
+use crate::web_synth::{Source, Note, SAMPLE_SIZE, MutSource, SAMPLE_RATE};
+use crate::web_synth::instruments::{Instrument, BELL, Bell};
 
-pub struct Keyboard<'a> {
-    instrument: &'a dyn Instrument,
-    notes: Vec<Note>,
-    master_volume: f32
+fn calc_offset_time(t: f32, sample_idx: usize) -> f32 {
+    t + sample_idx as f32 / SAMPLE_RATE
 }
 
-impl MutSource for Keyboard<'_> {
+pub struct Keyboard {
+    instrument: Box<dyn Instrument>,
+    notes: Vec<Note>,
+    master_volume: f32,
+
+    keys_pressed: [bool; 16]
+}
+
+impl MutSource for Keyboard {
     fn get_sample_block(&mut self, t: f32) -> [f32; 128] {
         let mut output: [f32; 128] = [0.0; 128];
         for i in 0..SAMPLE_SIZE {
             for n in self.notes.iter_mut() {
                 let mut note_finished = false;
-                output[i] += self.instrument.sound(t, n, &mut note_finished);
+                output[i] += self.instrument.sound(calc_offset_time(t, i), n, &mut note_finished);
 
                 if note_finished {
                     n.active = false;
@@ -28,17 +34,51 @@ impl MutSource for Keyboard<'_> {
     }
 }
 
-impl Keyboard<'_> {
-    pub fn new() -> Keyboard<'static> {
+impl Keyboard {
+    pub fn new() -> Keyboard {
         Keyboard {
-            instrument: &BELL,
+            instrument: Box::new(Bell::new()),
             notes: Vec::new(),
-            master_volume: 0.2
+            master_volume: 0.2,
+
+            keys_pressed: [false; 16]
         }
     }
 
-    pub fn update_notes(&mut self) {
-        
+    pub fn get_keys_ptr(&self) -> *const bool {
+        self.keys_pressed.as_ptr()
+    }
+
+    pub fn update_notes(&mut self, t: f32) {
+        for (i, pressed) in self.keys_pressed.iter().enumerate() {
+            let opt_note = self.notes.iter_mut().find(|n| n.id == i as u32 + 64);
+            match opt_note {
+                Some(note_found) => {
+                    match pressed {
+                        true => {
+                            if note_found.off > note_found.on {
+                                note_found.on = t;
+                                note_found.active = true;
+                            }
+                        }
+                        false => {
+                            if note_found.off < note_found.on {
+                                note_found.off = t;
+                            }
+                        }
+                    }
+                }
+                None => {
+                    if *pressed {
+                        let mut new_note = Note::new();
+                        new_note.id = i as u32 + 64;
+                        new_note.on = t;
+                        new_note.active = true;
+                        self.notes.push(new_note);
+                    }
+                }
+            }
+        }
     }
 
     fn clear_finished_notes(&mut self) {
