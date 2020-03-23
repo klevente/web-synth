@@ -5,7 +5,7 @@ pub mod keyboard;
 
 type FLOAT = f64;
 
-pub(crate) const SAMPLE_RATE: f64 = 44100.0;
+pub(crate) const SAMPLE_RATE: f64 = 48000.0;
 pub(crate) const SAMPLE_SIZE: usize = 128;
 
 pub trait Source {

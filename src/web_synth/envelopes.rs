@@ -36,11 +36,11 @@ impl Envelope for ADSREnvelope {
 impl ADSREnvelope {
     pub const fn new() -> ADSREnvelope {
         ADSREnvelope {
-            attack_time: 5.0,
-            decay_time: 1.0,
+            attack_time: 0.1,
+            decay_time: 0.1,
             sustain_amplitude: 1.0,
-            release_time: 5.0,
-            start_amplitude: 1.6,
+            release_time: 0.2,
+            start_amplitude: 1.0,
         }
     }
 

@@ -12,7 +12,6 @@ export class WasmWorkletProcessor extends AudioWorkletProcessor {
 
             switch (e.data.type) {
                 case 'load':
-                    console.log(e.data.textDecoder);
                     this.initWasm(e.data.data).then(() => console.log('loaded wasm!'));
                     break;
                 case 'keys':
@@ -26,12 +25,14 @@ export class WasmWorkletProcessor extends AudioWorkletProcessor {
     async initWasm(wasmBinary) {
         this.wasm = await init(wasmBinary);
         this.memory = this.wasm.memory;
-        console.log(this.memory);
+
+        // TODO: set samplerate and samplesize in wasm from js
 
         this.keyboard = KeyboardSynthesizer.new();
         this.samplesPtr = this.keyboard.get_ptr();
         this.keysPtr = this.keyboard.get_keys_ptr();
-        this.noteIdsPtr = this.keyboard.get_note_ids_ptr();
+        this.samples = new Float64Array(this.memory.buffer, this.samplesPtr, 128);
+        this.keys = new Uint8Array(this.memory.buffer, this.keysPtr, 16);
     }
 
     process(inputs, outputs) {
@@ -39,17 +40,10 @@ export class WasmWorkletProcessor extends AudioWorkletProcessor {
         let output = outputs[0];
         let channelCount = input.length;
 
-        const keyboardArray = new Uint8Array(this.memory.buffer, this.keysPtr, 16);
-        keyboardArray.set(this.keysPressed);
-        // console.log(keyboardArray);
+        this.keys.set(this.keysPressed);
         this.keyboard.process();
-        const samples = new Float64Array(this.memory.buffer, this.samplesPtr, 128);
-        // console.log(samples);
-        const noteIds = new Uint32Array(this.memory.buffer, this.noteIdsPtr, this.keyboard.get_note_ids_size());
-        if (noteIds.length !== 0) {
-            console.log(noteIds);
-        }
-        output[0].set(samples);
+        output[0].set(this.samples);
+
         return true;
     }
 }

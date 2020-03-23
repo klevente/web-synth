@@ -33,14 +33,13 @@ impl KeyboardSynthesizer {
         KeyboardSynthesizer {
             out_samples: [0.0; 128],
             keyboard: Keyboard::new(),
-            source: SineOscillator::new(440.0, 0.01, 5.0),
+            source: SineOscillator::new(440.0, 0.0, 0.0, 64),
             sin_time: 0.0,
             sin_delta_time: 1.0 / SAMPLE_RATE,
         }
     }
 
     pub fn get_ptr(&self) -> *const f64 {
-        console::log_1(&"Console log from Rust!".into());
         self.out_samples.as_ptr()
     }
 
@@ -48,27 +47,19 @@ impl KeyboardSynthesizer {
         self.keyboard.get_keys_ptr()
     }
 
-    pub fn get_note_ids_ptr(&self) -> *const u32 {
-        self.keyboard.get_note_ids_ptr()
-    }
-
-    pub fn get_note_ids_size(&self) -> usize {
-        self.keyboard.get_note_ids_size()
-    }
-
     pub fn process(&mut self) {
         self.keyboard.update_notes(self.sin_time);
         let s1 = self.keyboard.get_sample_block(self.sin_time);
-        // let s2 = self.source.get_sample_block(self.sin_time);
+        let s2 = self.source.get_sample_block(self.sin_time);
         self.sin_time += self.sin_delta_time * SAMPLE_SIZE as f64;
         self.out_samples = [0.0; 128];
         for i in 0..SAMPLE_SIZE {
-            self.out_samples[i] += s1[i];
+            self.out_samples[i] += s1[i]; // + 0.1 * s2[i];
         }
     }
 }
 
-#[wasm_bindgen]
+/*#[wasm_bindgen]
 pub struct Synthesizer {
     out_samples: [f64; 128],
     source1: Box<dyn Source>,
@@ -226,3 +217,4 @@ impl Oscillator {
         self.samples = out;
     }
 }
+*/

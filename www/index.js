@@ -29,11 +29,6 @@ const init = async context => {
         canvas.lineTo(20, 70);
         canvas.stroke();
 
-        const t = new TextDecoder('utf-8', { ignoreBOM: true, fatal: true });
-        const copied = Object.assign({}, t);
-        console.log(copied);
-        String.fromCodePoint()
-
         fetch('/pkg/web_synth_bg.wasm')
             .then(r => r.arrayBuffer())
             .then(r => {

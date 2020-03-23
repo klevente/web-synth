@@ -1,8 +1,15 @@
-use crate::web_synth::{Source, Note, SAMPLE_SIZE, MutSource, SAMPLE_RATE};
+use crate::web_synth::{Source, Note, SAMPLE_SIZE, MutSource, SAMPLE_RATE, scale};
 use crate::web_synth::instruments::{Instrument, BELL, Bell};
+
+use web_sys::console;
+use std::f64::consts::PI;
 
 fn calc_offset_time(t: f64, sample_idx: usize) -> f64 {
     t + sample_idx as f64 / SAMPLE_RATE
+}
+
+fn w(freq_hz: f64) -> f64 {
+    2.0 * PI * freq_hz
 }
 
 pub struct Keyboard {
@@ -11,21 +18,26 @@ pub struct Keyboard {
     master_volume: f64,
 
     keys_pressed: [bool; 16],
-
-    note_ids: Vec<u32>
 }
 
 impl MutSource for Keyboard {
     fn get_sample_block(&mut self, t: f64) -> [f64; 128] {
+       /* for n in self.notes.iter() {
+            console::log_1(&n.id.into());
+        } */
         let mut output: [f64; 128] = [0.0; 128];
         for i in 0..SAMPLE_SIZE {
             for n in self.notes.iter_mut() {
                 let mut note_finished = false;
                 output[i] += self.instrument.sound(calc_offset_time(t, i), n, &mut note_finished);
+                let time = calc_offset_time(t, i);
+                let freq = w(scale(n.id)) * time;
+                let sample = freq.sin();
+                output[i] += sample;
 
-                if note_finished {
+                /*if note_finished {
                     n.active = false;
-                }
+                }*/
             }
             output[i] *= self.master_volume;
         }
@@ -40,25 +52,15 @@ impl Keyboard {
     pub fn new() -> Keyboard {
         Keyboard {
             instrument: Box::new(Bell::new()),
-            notes: Vec::new(),
+            notes: Vec::with_capacity(16),
             master_volume: 0.2,
 
-            keys_pressed: [false; 16],
-
-            note_ids: Vec::new()
+            keys_pressed: [false; 16]
         }
     }
 
     pub fn get_keys_ptr(&self) -> *const bool {
         self.keys_pressed.as_ptr()
-    }
-
-    pub fn get_note_ids_ptr(&self) -> *const u32 {
-        self.note_ids.as_ptr()
-    }
-
-    pub fn get_note_ids_size(&self) -> usize {
-        self.note_ids.len()
     }
 
     pub fn update_notes(&mut self, t: f64) {
@@ -76,6 +78,9 @@ impl Keyboard {
                         false => {
                             if note_found.off < note_found.on {
                                 note_found.off = t;
+
+                                //////
+                                note_found.active = false;
                             }
                         }
                     }
@@ -87,7 +92,6 @@ impl Keyboard {
                         new_note.on = t;
                         new_note.active = true;
                         self.notes.push(new_note);
-                        self.note_ids.push(i as u32 + 64);
                     }
                 }
             }
@@ -96,9 +100,5 @@ impl Keyboard {
 
     fn clear_finished_notes(&mut self) {
         self.notes.retain(|n| n.active);
-        self.note_ids.clear();
-        for n in self.notes.iter() {
-            self.note_ids.push(n.id);
-        }
     }
 }
