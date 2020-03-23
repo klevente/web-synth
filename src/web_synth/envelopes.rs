@@ -1,17 +1,17 @@
 pub trait Envelope {
-    fn amplitude(&self, t: f32, time_on: f32, time_off: f32) -> f32;
+    fn amplitude(&self, t: f64, time_on: f64, time_off: f64) -> f64;
 }
 
 pub struct ADSREnvelope {
-    attack_time: f32,
-    decay_time: f32,
-    sustain_amplitude: f32,
-    release_time: f32,
-    start_amplitude: f32,
+    attack_time: f64,
+    decay_time: f64,
+    sustain_amplitude: f64,
+    release_time: f64,
+    start_amplitude: f64,
 }
 
 impl Envelope for ADSREnvelope {
-    fn amplitude(&self, t: f32, time_on: f32, time_off: f32) -> f32 {
+    fn amplitude(&self, t: f64, time_on: f64, time_off: f64) -> f64 {
 
         let amplitude =
             // note is currently on
@@ -36,15 +36,15 @@ impl Envelope for ADSREnvelope {
 impl ADSREnvelope {
     pub const fn new() -> ADSREnvelope {
         ADSREnvelope {
-            attack_time: 0.1,
-            decay_time: 0.1,
+            attack_time: 5.0,
+            decay_time: 1.0,
             sustain_amplitude: 1.0,
-            release_time: 0.2,
-            start_amplitude: 1.0,
+            release_time: 5.0,
+            start_amplitude: 1.6,
         }
     }
 
-    fn calculate_amplitude(&self, lifetime: f32) -> f32 {
+    fn calculate_amplitude(&self, lifetime: f64) -> f64 {
         if lifetime <= self.attack_time {
             (lifetime / self.attack_time) * self.start_amplitude
         } else if lifetime <= self.attack_time + self.decay_time {

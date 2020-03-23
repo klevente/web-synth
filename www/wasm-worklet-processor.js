@@ -12,6 +12,7 @@ export class WasmWorkletProcessor extends AudioWorkletProcessor {
 
             switch (e.data.type) {
                 case 'load':
+                    console.log(e.data.textDecoder);
                     this.initWasm(e.data.data).then(() => console.log('loaded wasm!'));
                     break;
                 case 'keys':
@@ -30,6 +31,7 @@ export class WasmWorkletProcessor extends AudioWorkletProcessor {
         this.keyboard = KeyboardSynthesizer.new();
         this.samplesPtr = this.keyboard.get_ptr();
         this.keysPtr = this.keyboard.get_keys_ptr();
+        this.noteIdsPtr = this.keyboard.get_note_ids_ptr();
     }
 
     process(inputs, outputs) {
@@ -41,8 +43,12 @@ export class WasmWorkletProcessor extends AudioWorkletProcessor {
         keyboardArray.set(this.keysPressed);
         // console.log(keyboardArray);
         this.keyboard.process();
-        const samples = new Float32Array(this.memory.buffer, this.samplesPtr, 128);
+        const samples = new Float64Array(this.memory.buffer, this.samplesPtr, 128);
         // console.log(samples);
+        const noteIds = new Uint32Array(this.memory.buffer, this.noteIdsPtr, this.keyboard.get_note_ids_size());
+        if (noteIds.length !== 0) {
+            console.log(noteIds);
+        }
         output[0].set(samples);
         return true;
     }

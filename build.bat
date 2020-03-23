@@ -1,1 +1,13 @@
-wasm-pack build --target web && node fix-js-binding.js
+wasm-pack build --target web && call :prependTextDecoderImport
+Rem && node fix-js-binding.js
+goto:eof
+
+:prependTextDecoderImport
+@echo off
+echo Adding TextDecoder import to pkg\web_synth.js...
+echo import { TextDecoder } from '/lib/text-encoding.js'; > pkg\temp.js
+type pkg\web_synth.js >> pkg\temp.js
+type pkg\temp.js > pkg\web_synth.js
+del pkg\temp.js
+echo Done!
+goto:eof
