@@ -29,8 +29,8 @@ impl Instrument for Bell {
             // 0.50 * sine_osc(t - note.on, scale(note.id + 12), 0.0, 0.0) +
             // 0.25 * sine_osc(t - note.on, scale(note.id + 24), 0.0, 0.0);
 
-        // amplitude * sound
-        sound
+        amplitude * sound
+        // sound
     }
 }
 

@@ -30,10 +30,10 @@ impl MutSource for Keyboard {
             for n in self.notes.iter_mut() {
                 let mut note_finished = false;
                 output[i] += self.instrument.sound(calc_offset_time(t, i), n, &mut note_finished);
-                let time = calc_offset_time(t, i);
+                /*let time = calc_offset_time(t, i);
                 let freq = w(scale(n.id)) * time;
                 let sample = freq.sin();
-                output[i] += sample;
+                output[i] += sample;*/
 
                 /*if note_finished {
                     n.active = false;
