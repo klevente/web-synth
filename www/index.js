@@ -54,7 +54,8 @@ window.onclick = function () {
     }
 };
 
-const keyLayout = 'zsxcfvgbnjmk,l./';
+// const keyLayout = 'zsxcfvgbnjmk,l./';
+const keyLayout = 'zsxdcvgbhnjm,l.;';
 
 function getKeyIndex(key) {
     return keyLayout.indexOf(key);

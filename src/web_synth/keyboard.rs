@@ -58,7 +58,7 @@ impl Keyboard {
 
     pub fn update_notes(&mut self, t: f64) {
         for (i, pressed) in self.keys_pressed.iter().enumerate() {
-            let opt_note = self.notes.iter_mut().find(|n| n.id == (i as u32 + 64));
+            let opt_note = self.notes.iter_mut().find(|n| n.id == (i as u32 + 40));
             match opt_note {
                 Some(note_found) => {
                     match *pressed {
@@ -78,7 +78,7 @@ impl Keyboard {
                 None => {
                     if *pressed {
                         let mut new_note = Note::new();
-                        new_note.id = i as u32 + 64;
+                        new_note.id = i as u32 + 40;
                         new_note.on = t;
                         new_note.active = true;
                         self.notes.push(new_note);

@@ -45,3 +45,7 @@ impl Note {
 pub fn scale(note_id: u32) -> f64 {
     8.0 * 1.0594630943592952645618252949463_f64.powi(note_id as i32)
 }
+
+pub fn piano_scale(note_id: u32) -> f64 {
+    440.0 * 1.0594630943592952645618252949463_f64.powi(note_id as i32 - 49)
+}
