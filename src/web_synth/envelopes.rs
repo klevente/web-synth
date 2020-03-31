@@ -1,3 +1,5 @@
+use web_sys::console;
+
 pub trait Envelope {
     fn amplitude(&self, t: f64, time_on: f64, time_off: f64) -> f64;
 }
@@ -12,7 +14,6 @@ pub struct ADSREnvelope {
 
 impl Envelope for ADSREnvelope {
     fn amplitude(&self, t: f64, time_on: f64, time_off: f64) -> f64 {
-
         let amplitude =
             // note is currently on
             if time_on > time_off {
@@ -25,7 +26,7 @@ impl Envelope for ADSREnvelope {
                 ((t - time_off) / self.release_time) * (0.0 - release_amplitude) + release_amplitude
             };
 
-        if amplitude <= 0.01 {
+        if amplitude <= 0.0000001 {
             return 0.0;
         }
 

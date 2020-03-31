@@ -1,3 +1,5 @@
+use wasm_bindgen::prelude::*;
+
 pub mod oscillators;
 pub mod envelopes;
 pub mod instruments;

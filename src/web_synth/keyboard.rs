@@ -22,22 +22,15 @@ pub struct Keyboard {
 
 impl MutSource for Keyboard {
     fn get_sample_block(&mut self, t: f64) -> [f64; 128] {
-       /* for n in self.notes.iter() {
-            console::log_1(&n.id.into());
-        } */
         let mut output: [f64; 128] = [0.0; 128];
         for i in 0..SAMPLE_SIZE {
             for n in self.notes.iter_mut() {
                 let mut note_finished = false;
                 output[i] += self.instrument.sound(calc_offset_time(t, i), n, &mut note_finished);
-                /*let time = calc_offset_time(t, i);
-                let freq = w(scale(n.id)) * time;
-                let sample = freq.sin();
-                output[i] += sample;*/
 
-                /*if note_finished {
+                if note_finished {
                     n.active = false;
-                }*/
+                }
             }
             output[i] *= self.master_volume;
         }
@@ -68,7 +61,7 @@ impl Keyboard {
             let opt_note = self.notes.iter_mut().find(|n| n.id == (i as u32 + 64));
             match opt_note {
                 Some(note_found) => {
-                    match pressed {
+                    match *pressed {
                         true => {
                             if note_found.off > note_found.on {
                                 note_found.on = t;
@@ -78,9 +71,6 @@ impl Keyboard {
                         false => {
                             if note_found.off < note_found.on {
                                 note_found.off = t;
-
-                                //////
-                                note_found.active = false;
                             }
                         }
                     }
