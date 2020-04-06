@@ -7,7 +7,6 @@ use std::f64::consts::PI;
 use std::f64::INFINITY;
 use crate::web_synth::{Source, SAMPLE_SIZE, MutSource};
 use crate::web_synth::SAMPLE_RATE;
-use crate::web_synth::oscillators::{SineOscillator, SquareOscillator};
 use crate::web_synth::keyboard::Keyboard;
 
 
@@ -18,24 +17,28 @@ use crate::web_synth::keyboard::Keyboard;
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
-pub struct KeyboardSynthesizer {
+pub struct SynthBox {
     out_samples: [f64; 128],
     keyboard: Keyboard,
-    source: SineOscillator,
     sin_time: f64,
-    sin_delta_time: f64
+    sin_delta_time: f64,
+
+    master_volume: f64,
+    master_volume_array: [f64; 128]
 }
 
 #[wasm_bindgen]
-impl KeyboardSynthesizer {
+impl SynthBox {
 
-    pub fn new() -> KeyboardSynthesizer {
-        KeyboardSynthesizer {
+    pub fn new() -> SynthBox {
+        SynthBox {
             out_samples: [0.0; 128],
             keyboard: Keyboard::new(),
-            source: SineOscillator::new(440.0, 0.0, 0.0, 64),
             sin_time: 0.0,
             sin_delta_time: 1.0 / SAMPLE_RATE,
+
+            master_volume: 0.5,
+            master_volume_array: [0.5; 128]
         }
     }
 
@@ -47,14 +50,26 @@ impl KeyboardSynthesizer {
         self.keyboard.get_keys_ptr()
     }
 
+    pub fn get_master_vol_array_ptr(&self) -> *const f64 {
+        self.master_volume_array.as_ptr()
+    }
+
+    pub fn set_octave(&mut self, new_octave: u32) {
+        self.keyboard.set_octave(new_octave);
+    }
+
+    pub fn set_master_volume(&mut self, volume: f64) {
+        self.master_volume = volume;
+    }
+
     pub fn process(&mut self) {
         self.keyboard.update_notes(self.sin_time);
         let s1 = self.keyboard.get_sample_block(self.sin_time);
-        let s2 = self.source.get_sample_block(self.sin_time);
         self.sin_time += self.sin_delta_time * SAMPLE_SIZE as f64;
         self.out_samples = [0.0; 128];
         for i in 0..SAMPLE_SIZE {
-            self.out_samples[i] += s1[i]; // + 0.1 * s2[i];
+            self.out_samples[i] += s1[i];
+            self.out_samples[i] *= self.master_volume_array[i];
         }
     }
 }

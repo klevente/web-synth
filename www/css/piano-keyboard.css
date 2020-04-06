@@ -1,0 +1,133 @@
+.keyboard-container {
+    font: 16px Lucida Sans, Trebuchet MS, Tahoma, sans-serif;
+    color: #000000;
+    padding: 20px;
+    margin: 20px;
+}
+
+ul.piano-keyboard {
+    position: relative;
+    display: inline-block;
+    height: 160px;
+    padding: 0;
+    cursor: pointer;
+    list-style-type: none;
+}
+
+ul.piano-keyboard li {
+    position: relative;
+    float: left;
+    border-style: solid;
+    border-color: #000000;
+    border-width: 2px 1px 2px 1px;
+    border-radius: 0 0 4px 4px;
+    color: #cccccc;
+    text-align: center;
+    user-select: none;
+}
+
+ul.piano-keyboard li:first-of-type {
+    border-left-width: 2px;
+    border-top-left-radius: 4px;
+}
+
+ul.piano-keyboard li:last-of-type {
+    border-right-width: 2px;
+    border-top-right-radius: 4px;
+}
+
+.white-key {
+    width: 30px;
+    height: 150px;
+    background: #ffffff;
+}
+
+.white-key:hover:active {
+    background: #eeeeee;
+}
+
+.white-key:hover {
+    background: #f9f9f9;
+}
+
+.white-key > p {
+    margin-top: 120px;
+}
+
+.black-key {
+    background: #000000;
+    z-index: 10;
+    width: 20px;
+    height: 100px;
+    margin: 0 0 0 -10px;
+}
+
+.black-key:hover:active {
+    background: #555555;
+}
+
+.black-key:hover {
+    background: #444444;
+}
+
+.black-key > p {
+    margin-top: 70px;
+}
+
+/* positioning */
+.black-key + .white-key {
+    margin-left: -12px;
+}
+
+/*
+.blackKeyFlat {
+    top: 50px;
+    background: #111;
+    z-index: 10;
+    width: 20px;
+    height: 50px;
+    margin: 0 0 0 -10px;
+}
+
+.blackKeyFlat:hover:active {
+    background: #555;
+}
+
+.blackKeyFlat:hover {
+    background: #444;
+}
+*/
+
+/* Octave shift */
+
+.keyboard-container button {
+    display: inline-block;
+    cursor: pointer;
+    background-color: rgba(255, 255, 255, 0.0);
+    margin: 10px;
+    border-style: none;
+    padding: 10px;
+    text-align: center;
+    vertical-align: top;
+    font-size: 50px;
+    height: 160px;
+    color: #999999;
+}
+
+.keyboard-container button:hover {
+    background-color: #eeeeee;
+}
+
+
+.keyboard-container button:disabled {
+    color: #ffffff;
+    cursor: default;
+}
+
+.keyboard-container button:disabled:hover {
+    background-color: #ffffff;
+}
+
+.key-pressed {
+    background: #555555;
+}

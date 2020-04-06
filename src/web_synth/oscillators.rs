@@ -1,7 +1,6 @@
 use std::f64::consts::PI;
 use crate::web_synth::{Source, SAMPLE_RATE, SAMPLE_SIZE, scale};
 
-
 fn w(freq_hz: f64) -> f64 {
     2.0 * PI * freq_hz
 }
@@ -12,13 +11,6 @@ fn modulate_freq(t: f64, freq_hz: f64, lfo_amplitude: f64, lfo_freq_hz: f64) -> 
 
 fn calc_offset_time(t: f64, sample_idx: usize) -> f64 {
     t + sample_idx as f64 / SAMPLE_RATE
-}
-
-fn generate_samples<G>(t: f64, freq_hz: f64, lfo_amplitude: f64, lfo_freq_hz: f64, samples: &mut [f64], generator: G) where G: Fn(f64) -> f64 {
-    for i in 0..SAMPLE_SIZE {
-        let fm_freq = modulate_freq(calc_offset_time(t, i), freq_hz, lfo_amplitude, lfo_freq_hz);
-        samples[i] = generator(fm_freq);
-    }
 }
 
 pub fn sine_osc(t: f64, freq_hz: f64, lfo_amplitude: f64, lfo_freq_hz: f64) -> f64 {
@@ -35,7 +27,14 @@ pub fn triangle_osc(t: f64, freq_hz: f64, lfo_amplitude: f64, lfo_freq_hz: f64) 
     (sine_osc(t, freq_hz, lfo_amplitude, lfo_freq_hz) * (2.0 / PI)).asin()
 }
 
-pub struct SineOscillator {
+/*fn generate_samples<G>(t: f64, freq_hz: f64, lfo_amplitude: f64, lfo_freq_hz: f64, samples: &mut [f64], generator: G) where G: Fn(f64) -> f64 {
+    for i in 0..SAMPLE_SIZE {
+        let fm_freq = modulate_freq(calc_offset_time(t, i), freq_hz, lfo_amplitude, lfo_freq_hz);
+        samples[i] = generator(fm_freq);
+    }
+}*/
+
+/* pub struct SineOscillator {
     freq_hz: f64,
     lfo_amplitude: f64,
     lfo_freq_hz: f64,
@@ -124,4 +123,4 @@ impl Source for TriangleOscillator {
 
         samples
     }
-}
+} */

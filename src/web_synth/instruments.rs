@@ -19,11 +19,7 @@ pub struct Bell {
 impl Instrument for Bell {
     fn sound(&self, t: f64, note: &Note, note_finished: &mut bool) -> f64 {
         let amplitude = self.envelope.amplitude(t, note.on, note.off);
-        /*if t != note.on && amplitude <= 0.0 {
-            *note_finished = true;
-        }*/
-
-        if amplitude < 0.0 {
+        if t != note.on && amplitude <= 0.0 {
             *note_finished = true;
         }
 

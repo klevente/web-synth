@@ -1,0 +1,7 @@
+.vertical-slider {
+    /*position: absolute;
+    top: 40%;
+    transform: rotate(270deg);*/
+
+    transform: rotateZ(270deg);
+}

@@ -1,6 +1,18 @@
-import init, { KeyboardSynthesizer } from '/pkg/web_synth.js';
+import init, { SynthBox } from '/pkg/web_synth.js';
 
 export class WasmWorkletProcessor extends AudioWorkletProcessor {
+
+    static get parameterDescriptors() {
+        return [
+            {
+                name: 'master',
+                defaultValue: 0.5,
+                minValue: 0,
+                maxValue: 1
+            }
+        ];
+    }
+
     constructor() {
         super();
         this.keysPressed = Array(16).fill(false);
@@ -18,6 +30,13 @@ export class WasmWorkletProcessor extends AudioWorkletProcessor {
                     this.keysPressed = e.data.keysPressed;
                     // console.log(this.keysPressed);
                     break;
+                case 'octave':
+                    this.synthbox.set_octave(e.data.octave);
+                    console.log(e.data.octave);
+                    break;
+                case 'master':
+                    this.synthbox.set_master_volume(e.data.volume);
+                    break;
             }
         };
     }
@@ -28,20 +47,28 @@ export class WasmWorkletProcessor extends AudioWorkletProcessor {
 
         // TODO: set samplerate and samplesize in wasm from js
 
-        this.keyboard = KeyboardSynthesizer.new();
-        this.samplesPtr = this.keyboard.get_ptr();
-        this.keysPtr = this.keyboard.get_keys_ptr();
+        this.synthbox = SynthBox.new();
+        this.samplesPtr = this.synthbox.get_ptr();
+        this.keysPtr = this.synthbox.get_keys_ptr();
+        this.masterPtr = this.synthbox.get_master_vol_array_ptr();
         this.samples = new Float64Array(this.memory.buffer, this.samplesPtr, 128);
         this.keys = new Uint8Array(this.memory.buffer, this.keysPtr, 16);
+        this.master = new Float64Array(this.memory.buffer, this.masterPtr, 128);
     }
 
-    process(inputs, outputs) {
+    process(inputs, outputs, parameters) {
         let input = inputs[0];
         let output = outputs[0];
         let channelCount = input.length;
 
+        if (parameters['master'].length > 1) {
+            this.master.set(parameters['master']);
+        } else {
+            this.master.fill(parameters['master'][0], 0, 128);
+        }
+
         this.keys.set(this.keysPressed);
-        this.keyboard.process();
+        this.synthbox.process();
         output[0].set(this.samples);
 
         return true;

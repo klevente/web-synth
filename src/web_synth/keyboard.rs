@@ -1,4 +1,4 @@
-use crate::web_synth::{Source, Note, SAMPLE_SIZE, MutSource, SAMPLE_RATE, scale};
+use crate::web_synth::{Source, Note, SAMPLE_SIZE, MutSource, SAMPLE_RATE, scale, piano_scale};
 use crate::web_synth::instruments::{Instrument, BELL, Bell};
 
 use web_sys::console;
@@ -18,6 +18,7 @@ pub struct Keyboard {
     master_volume: f64,
 
     keys_pressed: [bool; 16],
+    octave_offset: u32
 }
 
 impl MutSource for Keyboard {
@@ -48,7 +49,8 @@ impl Keyboard {
             notes: Vec::with_capacity(16),
             master_volume: 0.2,
 
-            keys_pressed: [false; 16]
+            keys_pressed: [false; 16],
+            octave_offset: 0
         }
     }
 
@@ -56,9 +58,14 @@ impl Keyboard {
         self.keys_pressed.as_ptr()
     }
 
+    pub fn set_octave(&mut self, new_octave: u32) {
+        self.octave_offset = new_octave * 12 + 4;
+    }
+
     pub fn update_notes(&mut self, t: f64) {
         for (i, pressed) in self.keys_pressed.iter().enumerate() {
-            let opt_note = self.notes.iter_mut().find(|n| n.id == (i as u32 + 40));
+            let offset = self.octave_offset;
+            let opt_note = self.notes.iter_mut().find(|n| n.id == (i as u32 + offset));
             match opt_note {
                 Some(note_found) => {
                     match *pressed {
@@ -77,10 +84,11 @@ impl Keyboard {
                 }
                 None => {
                     if *pressed {
-                        let mut new_note = Note::new();
-                        new_note.id = i as u32 + 40;
+                        /*let mut new_note = Note::new();
+                        new_note.id = i as u32 + offset;
                         new_note.on = t;
-                        new_note.active = true;
+                        new_note.active = true;*/
+                        let new_note = Note::new_with_params(i as u32 + offset, t);
                         self.notes.push(new_note);
                     }
                 }

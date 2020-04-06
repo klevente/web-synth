@@ -40,6 +40,16 @@ impl Note {
             instrument: 0
         }
     }
+
+    pub fn new_with_params(id: u32, t_on: f64) -> Note {
+        Note {
+            id,
+            on: t_on,
+            off: 0.0,
+            active: true,
+            instrument: 0
+        }
+    }
 }
 
 pub fn scale(note_id: u32) -> f64 {
