@@ -15,7 +15,7 @@ export class WasmWorkletProcessor extends AudioWorkletProcessor {
 
     constructor() {
         super();
-        this.keysPressed = Array(16).fill(false);
+        this.keysPressed = Array(17).fill(false);
         this.initMessagePort();
     }
 
@@ -52,7 +52,7 @@ export class WasmWorkletProcessor extends AudioWorkletProcessor {
         this.keysPtr = this.synthbox.get_keys_ptr();
         this.masterPtr = this.synthbox.get_master_vol_array_ptr();
         this.samples = new Float64Array(this.memory.buffer, this.samplesPtr, 128);
-        this.keys = new Uint8Array(this.memory.buffer, this.keysPtr, 16);
+        this.keys = new Uint8Array(this.memory.buffer, this.keysPtr, 17);
         this.master = new Float64Array(this.memory.buffer, this.masterPtr, 128);
     }
 

@@ -3,8 +3,7 @@ let loaded = false;
 let worklet;
 const canvas = document.getElementById('canvas').getContext('2d');
 canvas.fillStyle = 'black';
-const keysPressed = Array(16).fill(false);
-const keysPressedSet = new Set();
+const keysPressed = Array(17).fill(false);
 let currentOctave = 0;
 
 const init = async context => {
@@ -66,7 +65,7 @@ window.onclick = function () {
 };
 
 // const keyLayout = 'zsxcfvgbnjmk,l./';
-const keyLayout = 'zsxdcvgbhnjm,l.;';
+const keyLayout = 'zsxdcvgbhnjm,l.;/';
 
 function getKeyIndex(key) {
     return keyLayout.indexOf(key);
@@ -116,21 +115,3 @@ document.querySelectorAll('li')
             }
         };
     });
-
-/*
-function raiseOctave() {
-    if (currentOctave < 8) {
-        currentOctave++;
-        worklet.port.postMessage({ type: 'octave', octave: currentOctave });
-    }
-}
-
-function lowerOctave() {
-    if (currentOctave > 0) {
-        currentOctave--;
-        worklet.port.postMessage({ type: 'octave', octave: currentOctave });
-    }
-}
-
-document.querySelector('#lowerOctave').onclick = lowerOctave;
-document.querySelector('#raiseOctave').onclick = raiseOctave;*/

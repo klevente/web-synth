@@ -4,6 +4,7 @@ pub mod oscillators;
 pub mod envelopes;
 pub mod instruments;
 pub mod keyboard;
+pub mod sequencer;
 
 type FLOAT = f64;
 

@@ -17,7 +17,7 @@ pub struct Keyboard {
     notes: Vec<Note>,
     master_volume: f64,
 
-    keys_pressed: [bool; 16],
+    keys_pressed: [bool; 17],
     octave_offset: u32
 }
 
@@ -46,10 +46,10 @@ impl Keyboard {
     pub fn new() -> Keyboard {
         Keyboard {
             instrument: Box::new(Bell::new()),
-            notes: Vec::with_capacity(16),
+            notes: Vec::with_capacity(17),
             master_volume: 0.2,
 
-            keys_pressed: [false; 16],
+            keys_pressed: [false; 17],
             octave_offset: 0
         }
     }
@@ -89,6 +89,7 @@ impl Keyboard {
                         new_note.on = t;
                         new_note.active = true;*/
                         let new_note = Note::new_with_params(i as u32 + offset, t);
+                        console::log_1(&piano_scale(new_note.id).into());
                         self.notes.push(new_note);
                     }
                 }

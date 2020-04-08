@@ -112,6 +112,8 @@ ul.piano-keyboard li:last-of-type {
     font-size: 50px;
     height: 160px;
     color: #999999;
+    user-select: none;
+    outline: none;
 }
 
 .keyboard-container button:hover {
