@@ -1,5 +1,5 @@
 use std::f64::consts::PI;
-use crate::web_synth::{Source, SAMPLE_RATE, SAMPLE_SIZE, scale};
+use crate::web_synth::random::RNG;
 
 fn w(freq_hz: f64) -> f64 {
     2.0 * PI * freq_hz
@@ -7,10 +7,6 @@ fn w(freq_hz: f64) -> f64 {
 
 fn modulate_freq(t: f64, freq_hz: f64, lfo_amplitude: f64, lfo_freq_hz: f64) -> f64 {
     w(freq_hz) * t + lfo_amplitude * freq_hz * (w(lfo_freq_hz) * t).sin()
-}
-
-fn calc_offset_time(t: f64, sample_idx: usize) -> f64 {
-    t + sample_idx as f64 / SAMPLE_RATE
 }
 
 pub fn sine_osc(t: f64, freq_hz: f64, lfo_amplitude: f64, lfo_freq_hz: f64) -> f64 {
@@ -25,6 +21,10 @@ pub fn square_osc(t: f64, freq_hz: f64, lfo_amplitude: f64, lfo_freq_hz: f64) ->
 
 pub fn triangle_osc(t: f64, freq_hz: f64, lfo_amplitude: f64, lfo_freq_hz: f64) -> f64 {
     (sine_osc(t, freq_hz, lfo_amplitude, lfo_freq_hz) * (2.0 / PI)).asin()
+}
+
+pub fn noise_osc() -> f64 {
+    2.0 * RNG.gen() - 1.0
 }
 
 /*fn generate_samples<G>(t: f64, freq_hz: f64, lfo_amplitude: f64, lfo_freq_hz: f64, samples: &mut [f64], generator: G) where G: Fn(f64) -> f64 {

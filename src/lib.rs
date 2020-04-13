@@ -2,12 +2,9 @@ mod utils;
 mod web_synth;
 
 use wasm_bindgen::prelude::*;
-use web_sys::console;
-use std::f64::consts::PI;
-use std::f64::INFINITY;
-use crate::web_synth::{Source, SAMPLE_SIZE, MutSource};
-use crate::web_synth::SAMPLE_RATE;
+use crate::web_synth::{SAMPLE_SIZE, MutSource, DELTA_TIME};
 use crate::web_synth::keyboard::Keyboard;
+use crate::web_synth::sequencer::Sequencer;
 
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
@@ -20,9 +17,9 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 pub struct SynthBox {
     out_samples: [f64; 128],
     keyboard: Keyboard,
-    sin_time: f64,
-    sin_delta_time: f64,
+    sequencer: Sequencer,
 
+    sin_time: f64,
     master_volume: f64,
     master_volume_array: [f64; 128]
 }
@@ -34,9 +31,9 @@ impl SynthBox {
         SynthBox {
             out_samples: [0.0; 128],
             keyboard: Keyboard::new(),
-            sin_time: 0.0,
-            sin_delta_time: 1.0 / SAMPLE_RATE,
+            sequencer: Sequencer::new(4, 4, 90.0),
 
+            sin_time: 0.0,
             master_volume: 0.5,
             master_volume_array: [0.5; 128]
         }
@@ -65,10 +62,11 @@ impl SynthBox {
     pub fn process(&mut self) {
         self.keyboard.update_notes(self.sin_time);
         let s1 = self.keyboard.get_sample_block(self.sin_time);
-        self.sin_time += self.sin_delta_time * SAMPLE_SIZE as f64;
+        let s2 = self.sequencer.get_sample_block(self.sin_time);
+        self.sin_time += DELTA_TIME * SAMPLE_SIZE as f64;
         self.out_samples = [0.0; 128];
         for i in 0..SAMPLE_SIZE {
-            self.out_samples[i] += s1[i];
+            self.out_samples[i] += s1[i] + s2[i];
             self.out_samples[i] *= self.master_volume_array[i];
         }
     }

@@ -1,12 +1,8 @@
-use crate::web_synth::{Source, Note, SAMPLE_SIZE, MutSource, SAMPLE_RATE, scale, piano_scale};
-use crate::web_synth::instruments::{Instrument, BELL, Bell};
+use crate::web_synth::{Note, SAMPLE_SIZE, MutSource, piano_scale, calc_offset_time};
+use crate::web_synth::instruments::{Instrument, Bell};
 
 use web_sys::console;
 use std::f64::consts::PI;
-
-fn calc_offset_time(t: f64, sample_idx: usize) -> f64 {
-    t + sample_idx as f64 / SAMPLE_RATE
-}
 
 fn w(freq_hz: f64) -> f64 {
     2.0 * PI * freq_hz
