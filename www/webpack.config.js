@@ -16,7 +16,8 @@ module.exports = {
         new CopyWebpackPlugin([
             { from: 'index.html', to: 'index.html' },
             { from: 'wasm-worklet-processor.js', to: 'wasm-worklet-processor.js' },
-            { from: '../pkg', to: 'pkg' }
+            { from: '../pkg', to: 'pkg' },
+            { from: '../lib', to: 'lib' }
         ])
     ],
 };

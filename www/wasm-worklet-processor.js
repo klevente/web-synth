@@ -1,96 +1,80 @@
-import init, { Oscillator, Synthethizer } from '/pkg/web_synth.js';
+import init, { SynthBox } from '/pkg/web_synth.js';
 
 export class WasmWorkletProcessor extends AudioWorkletProcessor {
+
+    static get parameterDescriptors() {
+        return [
+            {
+                name: 'master',
+                defaultValue: 0.5,
+                minValue: 0,
+                maxValue: 1
+            }
+        ];
+    }
+
     constructor() {
         super();
-        this.noteId = 64;
-        // this.baseFreq = 440.0;
-        this.baseFreq = this.scale(this.noteId);
-        this.volume = 0.2;
-        this.distort = false;
-        this.fuzz = false;
-        this.gain = 0.5;
-        this.mix = 0.5;
+        this.keysPressed = Array(17).fill(false);
         this.initMessagePort();
     }
 
     initMessagePort() {
         this.port.onmessage = e => {
-            if (e.data.type === 'load') {
-                this.initWasm(e.data.data)
-                    .then(() => console.log('loaded wasm!'));
+
+            switch (e.data.type) {
+                case 'load':
+                    this.initWasm(e.data.data).then(() => console.log('loaded wasm!'));
+                    break;
+                case 'keys':
+                    this.keysPressed = e.data.keysPressed;
+                    // console.log(this.keysPressed);
+                    break;
+                case 'octave':
+                    this.synthbox.set_octave(e.data.octave);
+                    console.log(e.data.octave);
+                    break;
+                case 'master':
+                    this.synthbox.set_master_volume(e.data.volume);
+                    break;
             }
-            if (e.data.type === 'higher') {
-                this.noteId++;
-                this.baseFreq = this.scale(this.noteId);
-            }
-            if (e.data.type === 'lower') {
-                this.noteId--;
-                this.baseFreq = this.scale(this.noteId);
-            }
-            if (e.data.type === 'louder') {
-                this.volume += 0.05;
-            }
-            if (e.data.type === 'quieter') {
-                this.volume -= 0.05;
-            }
-            if (e.data.type === 'toggleDistortion') {
-                this.distort = !this.distort;
-            }
-            if (e.data.type === 'toggleFuzz') {
-                this.fuzz = !this.fuzz;
-            }
-            if (e.data.type === 'increaseFuzz') {
-                this.gain += 0.1;
-            }
-            if (e.data.type === 'decreaseFuzz') {
-                this.gain -= 0.1;
-            }
-            if (e.data.type === 'increaseMix') {
-                this.mix += 0.1;
-            }
-            if (e.data.type === 'decreaseMix') {
-                this.mix -= 0.1;
-            }
-            this.oscillator.set_fuzz_params(this.gain, this.mix);
         };
     }
 
     async initWasm(wasmBinary) {
         this.wasm = await init(wasmBinary);
         this.memory = this.wasm.memory;
-        console.log(this.memory);
-        this.oscillator = Oscillator.new();
-        this.outSamples = this.oscillator.get_ptr();
-        this.oscillator.set_fuzz_params(this.gain, this.mix);
 
-        this.synthetizer = Synthethizer.new();
-        this.outSynthSamples = this.synthetizer.get_ptr();
+        // TODO: set samplerate and samplesize in wasm from js
+
+        this.synthbox = SynthBox.new();
+        this.samplesPtr = this.synthbox.get_ptr();
+        this.keysPtr = this.synthbox.get_keys_ptr();
+        this.masterPtr = this.synthbox.get_master_vol_array_ptr();
+        this.samples = new Float64Array(this.memory.buffer, this.samplesPtr, 128);
+        this.keys = new Uint8Array(this.memory.buffer, this.keysPtr, 17);
+        this.master = new Float64Array(this.memory.buffer, this.masterPtr, 128);
+
+        this.synthbox.add_sequencer_channel("kickdrum",  "x...x...x...x...");
+        this.synthbox.add_sequencer_channel("hihat",     "x.x.x.x.x.x.x.x.");
+        this.synthbox.add_sequencer_channel("snaredrum", "..x...x...x...x.")
     }
 
-    scale(noteId) {
-        const freq = 8 * Math.pow(1.0594630943592952645618252949463, noteId);
-        console.log(freq);
-        return freq;
-    }
-
-    process(inputs, outputs) {
+    process(inputs, outputs, parameters) {
         let input = inputs[0];
         let output = outputs[0];
         let channelCount = input.length;
-        /*this.oscillator.process(currentTime, this.baseFreq, this.volume);
-        if (this.distort) {
-            this.oscillator.distort();
+
+        if (parameters['master'].length > 1) {
+            this.master.set(parameters['master']);
+        } else {
+            this.master.fill(parameters['master'][0], 0, 128);
         }
-        if (this.fuzz) {
-            this.oscillator.fuzz();
-        }
-        const samples = new Float32Array(this.memory.buffer, this.outSamples, 128);*/
-        // console.log(samples);
-        this.synthetizer.process();
-        const samples = new Float32Array(this.memory.buffer, this.outSynthSamples, 128);
-        // this.port.postMessage({ type: 'samples', samples });
-        output[0].set(samples);
+
+        this.keys.set(this.keysPressed);
+        this.synthbox.process();
+        output[0].set(this.samples);
+
         return true;
     }
 }

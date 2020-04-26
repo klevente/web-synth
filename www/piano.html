@@ -1,19 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="css/sliders.css">
+    <meta charset="UTF-8">
     <link rel="stylesheet" href="css/piano-keyboard.css">
-    <title>Web Synth (US/UK layout)</title>
+    <title>Piano</title>
 </head>
 <body>
-    <canvas id="canvas" width="200" height="100"></canvas>
-    <label>
-        Master volume
-        <input id="master-slider" class="vertical-slider" type="range">
-    </label>
     <div class="keyboard-container">
-        <button type="button" id="lowerOctave">˂</button>
+        <button type="button" id="lowerOctave" onclick="console.log('lower octave')">˂</button>
         <ul class="piano-keyboard">
             <li class="white-key">
                 <p>Z</p>
@@ -57,7 +51,7 @@
                 <p>,</p>
             </li>
             <li class="black-key">
-                <p>L</p>
+                <p>l</p>
             </li>
             <li class="white-key">
                 <p>.</p>
@@ -69,9 +63,7 @@
                 <p>/</p>
             </li>
         </ul>
-        <button type="button" id="raiseOctave">˃</button>
+        <button type="button" id="raiseOctave" onclick="console.log('higher octave')">˃</button>
     </div>
-    <script src="./index.js"></script>
-    <noscript>This page contains webassembly and javascript content, please enable javascript in your browser.</noscript>
 </body>
 </html>

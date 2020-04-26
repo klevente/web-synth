@@ -3,31 +3,16 @@ let loaded = false;
 let worklet;
 const canvas = document.getElementById('canvas').getContext('2d');
 canvas.fillStyle = 'black';
+const keysPressed = Array(17).fill(false);
+let currentOctave = 0;
 
 const init = async context => {
     try {
         await context.audioWorklet.addModule('wasm-worklet-processor.js');
         worklet = new AudioWorkletNode(context, 'wasm-worklet-processor');
-        const input = context.createOscillator();
-        input.type = 'sine';
-        input.frequency.setValueAtTime(100, context.currentTime);
+        const masterVolumeParam = worklet.parameters.get('master');
 
-        input.connect(worklet).connect(context.destination);
-        // input.connect(context.destination);
-        // input.start();
-        // worklet.connect(context.destination);
-        // loaded = true;
-
-        /*worklet.port.onmessage = function (event) {
-            canvas.beginPath();
-            canvas.moveTo(0, 0);
-            let x = 0;
-            for (const s of event.data.samples) {
-                canvas.lineTo(x, s);
-                x += 1 / 44100;
-            }
-            canvas.stroke();
-        };*/
+        worklet.connect(context.destination);
 
         canvas.beginPath();
         canvas.moveTo(0, 0);
@@ -35,21 +20,35 @@ const init = async context => {
         canvas.lineTo(20, 70);
         canvas.stroke();
 
-        fetch('/pkg/web_synth_bg.wasm')
+        await fetch('/pkg/web_synth_bg.wasm')
             .then(r => r.arrayBuffer())
             .then(r => {
                 worklet.port.postMessage({ type: 'load', data: r });
-                input.start();
                 loaded = true;
             });
+
+        document.getElementById('lowerOctave').onclick = () => {
+            if (currentOctave > 0) {
+                currentOctave--;
+                worklet.port.postMessage({ type: 'octave', octave: currentOctave });
+            }
+        };
+
+        document.getElementById('raiseOctave').onclick = () => {
+            if (currentOctave < 8) {
+                currentOctave++;
+                worklet.port.postMessage({ type: 'octave', octave: currentOctave });
+            }
+        };
+
+        document.getElementById('master-slider').oninput = function () {
+            const volume = this.value / 100.0;
+            masterVolumeParam.setValueAtTime(volume, context.currentTime);
+        }
+
     } catch (e) {
         console.error(e);
     }
-
-    // const oscillator = context.createOscillator();
-    // oscillator.type = 'sine';
-    // oscillator.frequency.setValueAtTime(440, context.currentTime);
-    // oscillator.connect(context.destination);
 };
 
 window.onload = function () {
@@ -65,26 +64,54 @@ window.onclick = function () {
     }
 };
 
-window.onkeypress = function (event) {
-    if (event.key === 'q') {
-        worklet.port.postMessage({ type: 'higher' });
-    } else if (event.key === 'a') {
-        worklet.port.postMessage({ type: 'lower' });
-    } else if (event.key === 'e') {
-        worklet.port.postMessage({ type: 'louder' });
-    } else if (event.key === 'd') {
-        worklet.port.postMessage({ type: 'quieter' });
-    } else if (event.key === 'c') {
-        worklet.port.postMessage({ type: 'toggleDistortion' });
-    } else if (event.key === 'v') {
-        worklet.port.postMessage({ type: 'toggleFuzz' });
-    } else if (event.key === 'i') {
-        worklet.port.postMessage({ type: 'increaseFuzz' });
-    } else if (event.key === 'k') {
-        worklet.port.postMessage({ type: 'decreaseFuzz' });
-    } else if (event.key === 'o') {
-        worklet.port.postMessage({ type: 'increaseMix' });
-    } else if (event.key === 'l') {
-        worklet.port.postMessage({ type: 'decreaseMix' });
+// const keyLayout = 'zsxcfvgbnjmk,l./';
+const keyLayout = 'zsxdcvgbhnjm,l.;/';
+
+function getKeyIndex(key) {
+    return keyLayout.indexOf(key);
+}
+
+document.onkeydown = e => {
+    if (keyLayout.includes(e.key)) {
+        keysPressed[getKeyIndex(e.key)] = true;
+        worklet.port.postMessage({ type: 'keys', keysPressed });
+        document.querySelectorAll('li')
+            .forEach(k => {
+                if (k.firstElementChild.innerHTML === e.key.toUpperCase()) {
+                    // console.log(`found ${e.key.toUpperCase()}`);
+                    k.classList.add('key-pressed');
+                }
+            });
     }
 };
+
+document.onkeyup = e => {
+    if (keyLayout.includes(e.key)) {
+        keysPressed[getKeyIndex(e.key)] = false;
+        worklet.port.postMessage({ type: 'keys', keysPressed });
+        document.querySelectorAll('li')
+            .forEach(k => {
+                if (k.firstElementChild.innerHTML === e.key.toUpperCase()) {
+                    // console.log(`found ${e.key.toUpperCase()}`);
+                    k.classList.remove('key-pressed');
+                }
+            });
+    }
+};
+
+document.querySelectorAll('li')
+    .forEach(k => {
+        const key = k.firstElementChild.innerHTML.toLowerCase();
+        k.onmousedown = k.ontouchstart = () => {
+            if (keyLayout.includes(key)) {
+                keysPressed[getKeyIndex(key)] = true;
+                worklet.port.postMessage({ type: 'keys', keysPressed });
+            }
+        };
+        k.onmouseup = k.onmouseout = k.ontouchend = () => {
+            if (keyLayout.includes(key)) {
+                keysPressed[getKeyIndex(key)] = false;
+                worklet.port.postMessage({ type: 'keys', keysPressed });
+            }
+        };
+    });
