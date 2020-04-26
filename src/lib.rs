@@ -4,7 +4,7 @@ mod web_synth;
 use wasm_bindgen::prelude::*;
 use crate::web_synth::{SAMPLE_SIZE, MutSource, DELTA_TIME};
 use crate::web_synth::keyboard::Keyboard;
-use crate::web_synth::sequencer::Sequencer;
+use crate::web_synth::sequencer::{Sequencer, MultiSequencer};
 
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
@@ -17,7 +17,8 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 pub struct SynthBox {
     out_samples: [f64; 128],
     keyboard: Keyboard,
-    sequencer: Sequencer,
+    // sequencer: Sequencer,
+    sequencer: MultiSequencer,
 
     sin_time: f64,
     master_volume: f64,
@@ -31,12 +32,17 @@ impl SynthBox {
         SynthBox {
             out_samples: [0.0; 128],
             keyboard: Keyboard::new(),
-            sequencer: Sequencer::new(4, 4, 90.0),
+            // sequencer: Sequencer::new(4, 4, 90.0),
+            sequencer: MultiSequencer::new(4, 4, 90.0),
 
             sin_time: 0.0,
             master_volume: 0.5,
             master_volume_array: [0.5; 128]
         }
+    }
+
+    pub fn add_sequencer_channel(&mut self, instrument: &str, pattern: &str) {
+        self.sequencer.add_channel(instrument, pattern);
     }
 
     pub fn get_ptr(&self) -> *const f64 {

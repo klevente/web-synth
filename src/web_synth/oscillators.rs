@@ -1,6 +1,15 @@
 use std::f64::consts::PI;
 use crate::web_synth::random::RNG;
 
+pub enum OscillatorType {
+    Sine,
+    Square,
+    Triangle,
+    Noise
+}
+
+pub type OscillatorFunction = fn(f64, f64, f64, f64) -> f64;
+
 fn w(freq_hz: f64) -> f64 {
     2.0 * PI * freq_hz
 }
@@ -23,7 +32,7 @@ pub fn triangle_osc(t: f64, freq_hz: f64, lfo_amplitude: f64, lfo_freq_hz: f64) 
     (sine_osc(t, freq_hz, lfo_amplitude, lfo_freq_hz) * (2.0 / PI)).asin()
 }
 
-pub fn noise_osc() -> f64 {
+pub fn noise_osc(_: f64, _: f64, _: f64, _: f64) -> f64 {
     2.0 * RNG.gen() - 1.0
 }
 

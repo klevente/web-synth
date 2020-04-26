@@ -84,7 +84,7 @@ impl Keyboard {
                         new_note.id = i as u32 + offset;
                         new_note.on = t;
                         new_note.active = true;*/
-                        let new_note = Note::new_with_params(i as u32 + offset, t);
+                        let new_note = Note::new_with_params(i as u32 + offset, t, 0);
                         console::log_1(&piano_scale(new_note.id).into());
                         self.notes.push(new_note);
                     }

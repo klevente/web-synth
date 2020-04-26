@@ -54,6 +54,10 @@ export class WasmWorkletProcessor extends AudioWorkletProcessor {
         this.samples = new Float64Array(this.memory.buffer, this.samplesPtr, 128);
         this.keys = new Uint8Array(this.memory.buffer, this.keysPtr, 17);
         this.master = new Float64Array(this.memory.buffer, this.masterPtr, 128);
+
+        this.synthbox.add_sequencer_channel("kickdrum",  "x...x...x...x...");
+        this.synthbox.add_sequencer_channel("hihat",     "x.x.x.x.x.x.x.x.");
+        this.synthbox.add_sequencer_channel("snaredrum", "..x...x...x...x.")
     }
 
     process(inputs, outputs, parameters) {

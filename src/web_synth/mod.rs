@@ -1,4 +1,5 @@
 use wasm_bindgen::prelude::*;
+use crate::web_synth::instruments::{Instrument};
 
 pub mod random;
 pub mod oscillators;
@@ -28,7 +29,7 @@ pub struct Note {
     on: f64,
     off: f64,
     active: bool,
-    instrument: u32
+    channel: usize
 }
 
 impl Note {
@@ -38,17 +39,17 @@ impl Note {
             on: 0.0,
             off: 0.0,
             active: false,
-            instrument: 0
+            channel: 0
         }
     }
 
-    pub fn new_with_params(id: u32, t_on: f64) -> Note {
+    pub fn new_with_params(id: u32, t_on: f64, channel: usize) -> Note {
         Note {
             id,
             on: t_on,
             off: 0.0,
             active: true,
-            instrument: 0
+            channel
         }
     }
 }

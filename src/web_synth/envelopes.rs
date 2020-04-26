@@ -99,7 +99,7 @@ impl Envelope for ADSRFixedEnvelope {
 
 impl ADSRFixedEnvelope {
 
-    pub fn new() -> ADSRFixedEnvelope {
+    pub const fn new() -> ADSRFixedEnvelope {
         ADSRFixedEnvelope {
             attack_time: 0.1,
             decay_time: 0.1,
@@ -110,7 +110,7 @@ impl ADSRFixedEnvelope {
         }
     }
 
-    pub fn new_with_params(attack_time: f64, decay_time: f64, sustain_amplitude: f64, release_time: f64, start_amplitude: f64, lifetime: f64) -> ADSRFixedEnvelope {
+    pub const fn new_with_params(attack_time: f64, decay_time: f64, sustain_amplitude: f64, release_time: f64, start_amplitude: f64, lifetime: f64) -> ADSRFixedEnvelope {
         ADSRFixedEnvelope {
             attack_time,
             decay_time,
