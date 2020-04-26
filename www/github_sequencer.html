@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        button:focus {
+            outline: none;
+        }
+
+        button.success {
+            margin-right: 24px;
+        }
+
+        .button_note {
+            background: white;
+            border: 1px solid rgba(94,94,94,.25) !important;
+            border-radius: 3px;
+            height: 48px;
+            margin: 4px 0;
+            width: auto;
+        }
+
+        .button_note:hover {
+            border: 1px solid rgba(94,94,94,.65) !important;
+        }
+
+        .button_note.selected {
+            background: blue;
+        }
+
+        .button_note.active-note {
+            background: yellow !important;
+            border: 2px solid green;
+        }
+
+        input#bpm {
+            margin-right: 36px;
+        }
+
+        select#type {
+            margin-right: 36px;
+        }
+
+        .wrapper_config {
+            align-items: center;
+            display: flex;
+        }
+
+        .wrapper_config span {
+            margin-right: 8px;
+        }
+
+        .wrapper_labels {
+            display: flex;
+            flex-direction: column;
+            margin: 6px;
+            padding-top: 10px;
+        }
+
+        .wrapper_labels label {
+            font-size: 40px;
+            font-weight: 300;
+            line-height: 48px;
+            margin: 4px 0;
+        }
+
+        .wrapper_playback {
+            display: flex;
+            justify-content: space-between;
+            padding: 24px 24px 0;
+        }
+
+        .wrapper_sound {
+            border-top: 3px solid transparent;
+            display: flex;
+            flex-direction: column;
+            margin: 6px;
+            padding-top: 8px;
+            width: 56px;
+        }
+
+        .wrapper_sound.active {
+            border-top: 3px solid black;
+        }
+
+        .wrapper_start-stop {
+            display: flex;
+        }
+
+        .wrapper_sequence {
+            display: flex;
+            padding: 0 30px;
+        }
+    </style>
+    <link href="https://unpkg.com/picnic" rel="stylesheet">
+</head>
+<body>
+<div class="wrapper_playback">
+    <div class="wrapper_start-stop">
+        <button id="play" class="success">PLAY</button>
+        <button id="stop" class="error">STOP</button>
+    </div>
+    <div class="wrapper_config">
+        <span>bpm:</span>
+        <input id="bpm" max="240" min="1" step="5" type="range">
+        <span>wave:</span>
+        <select id="type">
+            <option value="sine" selected>sine</option>
+            <option value="triangle">triangle</option>
+            <option value="sawtooth">sawtooth</option>
+            <option value="square">square</option>
+        </select>
+        <span>decay:</span>
+        <input id="decay" max="10" min="1" step="1" type="range">
+    </div>
+</div>
+<div id="SEQUENCER" class="wrapper_sequence">
+    <div class="wrapper_labels">
+        <label>C</label>
+        <label>B</label>
+        <label>Bb</label>
+        <label>A</label>
+        <label>G#</label>
+        <label>G</label>
+        <label>F#</label>
+        <label>F</label>
+        <label>E</label>
+        <label>Eb</label>
+        <label>D</label>
+        <label>C#</label>
+        <label>C</label>
+    </div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        function SongPlayer(sequenceLength = 8) {
+            return {
+                index: 0,
+                audioCtx: new AudioContext(),
+                bpm: 120,
+                sequenceLength,
+                type: "sine",
+                decay: 5,
+                hasPlayback: false,
+                soundElements: undefined,
+                initDom() {
+                    const root = document.getElementById("SEQUENCER");
+                    for (let i = 0; i < this.sequenceLength; i++) {
+                        const sound = `
+                                        <div index="${i}" class="wrapper_sound">
+                                            <button note="C" freq="523.25" class="button_note"></button>
+                                            <button note="B" freq="493.88" class="button_note"></button>
+                                            <button note="Bb" freq="466.16" class="button_note"></button>
+                                            <button note="A" freq="440" class="button_note"></button>
+                                            <button note="G#" freq="415.3" class="button_note"></button>
+                                            <button note="G" freq="392" class="button_note"></button>
+                                            <button note="F#" freq="369.99" class="button_note"></button>
+                                            <button note="F" freq="349.23" class="button_note"></button>
+                                            <button note="E" freq="329.63" class="button_note"></button>
+                                            <button note="Eb" freq="311.13" class="button_note"></button>
+                                            <button note="D" freq="293.66" class="button_note"></button>
+                                            <button note="C#" freq="277.18" class="button_note"></button>
+                                            <button note="C" freq="261.63" class="button_note"></button>
+                                        </div>
+                                    `;
+                        root.innerHTML = root.innerHTML + sound;
+                    }
+                    this.soundElements = Array.from(
+                        document.querySelectorAll(".wrapper_sound"),
+                    ).map(soundEl => {
+                        soundEl.onclick = function(event) {
+                            event.target.classList.contains("selected")
+                                ? event.target.classList.remove("selected")
+                                : event.target.classList.add("selected");
+                        };
+                        return soundEl;
+                    });
+                },
+                nextSound() {
+                    this.hasPlayback = true;
+                    const nextSound = {
+                        index: this.index,
+                        element: this.soundElements[this.index],
+                    };
+                    this.index =
+                        this.index === Array.from(this.soundElements).length - 1
+                            ? 0
+                            : this.index + 1;
+                    return nextSound;
+                },
+                playNextSound() {
+                    const sound = this.nextSound();
+                    for (const el of this.soundElements) {
+                        el.classList.remove("active");
+                        for (const note of el.children) {
+                            note.classList.remove("active-note");
+                        }
+                    }
+
+                    sound.element.classList.add("active");
+                    const noteElements = sound.element.children;
+                    const selectedElements = Array.from(noteElements).filter(e =>
+                        e.classList.contains("selected"),
+                    );
+                    for (const el of selectedElements) {
+                        el.classList.add("active-note");
+                        const freq = Array.from(el.attributes).find(
+                            a => a.name === "freq",
+                        ).nodeValue;
+                        const osc = this.audioCtx.createOscillator();
+                        osc.type = this.type;
+                        osc.frequency.setValueAtTime(
+                            freq,
+                            this.audioCtx.currentTime,
+                        );
+                        const gainNode = this.audioCtx.createGain();
+                        osc.connect(gainNode);
+                        gainNode.gain.setValueAtTime(
+                            0.3,
+                            this.audioCtx.currentTime,
+                        );
+                        gainNode.connect(this.audioCtx.destination);
+                        osc.start();
+                        gainNode.gain.exponentialRampToValueAtTime(
+                            0.00001,
+                            this.audioCtx.currentTime + this.decay,
+                        );
+                    }
+                },
+                stop() {
+                    this.hasPlayback = false;
+                },
+            };
+        }
+
+        document.player = new SongPlayer(32);
+        document.player.initDom();
+
+        let playback = -1;
+        const playButton = document.getElementById("play");
+        const stopButton = document.getElementById("stop");
+        const typeDropdown = document.getElementById("type");
+        const decaySlider = document.getElementById("decay");
+        const bpmSlider = document.getElementById("bpm");
+        playButton.onclick = function(event) {
+            if (!document.player.hasPlayback) {
+                document.player.playNextSound();
+                playback = setInterval(
+                    () => document.player.playNextSound(),
+                    60000 / document.player.bpm / 2,
+                );
+            }
+        };
+        stopButton.onclick = function(event) {
+            document.player.stop();
+            clearInterval(playback);
+            playback = -1;
+        };
+
+        typeDropdown.onchange = function(event) {
+            document.player.type = event.target.selectedOptions[0].value;
+        };
+        decaySlider.onchange = function(event) {
+            document.player.decay = parseInt(event.target.value);
+            console.log(document.player);
+        };
+        bpmSlider.onchange = function(event) {
+            stopButton.click();
+            document.player.bpm = parseInt(event.target.value);
+            playButton.click();
+        };
+    });
+</script>
+</body>
+</html>
