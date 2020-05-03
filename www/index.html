@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="css/sliders.css">
     <link rel="stylesheet" href="css/piano-keyboard.css">
+    <link rel="stylesheet" href="css/sequencer.css">
     <title>Web Synth (US/UK layout)</title>
 </head>
 <body>
@@ -70,6 +71,25 @@
             </li>
         </ul>
         <button type="button" id="raiseOctave">˃</button>
+    </div>
+    <div class="sequencer">
+        <div class="global-settings">
+            <label for="beats">
+                Beats:
+                <input id="beats" value="4">
+            </label>
+            <label for="subbeats">
+                Subbeats:
+                <input id="subbeats" value="4">
+            </label>
+            <label for="tempo">
+                Tempo:
+                <input id="tempo" value="90">
+            </label>
+            <button id="update">Update</button>
+            <button id="addChannel">Add channel</button>
+        </div>
+        <div class="sequencer-container"></div>
     </div>
     <script src="./index.js"></script>
     <noscript>This page contains webassembly and javascript content, please enable javascript in your browser.</noscript>

@@ -6,6 +6,7 @@ use crate::web_synth::{SAMPLE_SIZE, MutSource, DELTA_TIME};
 use crate::web_synth::keyboard::Keyboard;
 use crate::web_synth::sequencer::{Sequencer, MultiSequencer};
 
+use web_sys::console;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -43,6 +44,26 @@ impl SynthBox {
 
     pub fn add_sequencer_channel(&mut self, instrument: &str, pattern: &str) {
         self.sequencer.add_channel(instrument, pattern);
+    }
+
+    pub fn update_channel_instrument(&mut self, channel_index: usize, instrument_name: &str) {
+        self.sequencer.update_channel_instrument(channel_index, instrument_name);
+    }
+
+    pub fn update_channel_pattern(&mut self, channel_index: usize, pattern: &str) {
+        self.sequencer.update_channel_pattern(channel_index, pattern);
+    }
+
+    pub fn remove_channel(&mut self, channel_index: usize) {
+        self.sequencer.remove_channel(channel_index);
+    }
+
+    pub fn update_global_data(&mut self, beats: usize, sub_beats: usize, tempo: f64) {
+        self.sequencer.update_global_data(beats, sub_beats, tempo);
+    }
+
+    pub fn clear_channels(&mut self) {
+        self.sequencer.clear_channels();
     }
 
     pub fn get_ptr(&self) -> *const f64 {

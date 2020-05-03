@@ -127,7 +127,7 @@ impl MultiSequencer {
             all_beats: beats * sub_beats,
             current_beat: 0,
             elapsed_time: 0.0,
-            master_volume: 0.2,
+            master_volume: 1.0,
 
             notes: Vec::with_capacity(16),
 
@@ -152,6 +152,23 @@ impl MultiSequencer {
             .get_mut(channel_index)
             .unwrap()
             .update_pattern(pattern)
+    }
+
+    pub fn remove_channel(&mut self, channel_index: usize) {
+        self.channels.remove(channel_index);
+    }
+
+    pub fn clear_channels(&mut self) {
+        self.channels.clear();
+    }
+
+    pub fn update_global_data(&mut self, beats: usize, sub_beats: usize, tempo: f64) {
+        self.channels.clear();
+        self.notes.clear();
+        self.beat_time = (60.0 / tempo) / (sub_beats as f64);
+        self.all_beats = beats * sub_beats;
+        self.current_beat = 0;
+        self.elapsed_time = 0.0;
     }
 
     fn clear_finished_notes(&mut self) {

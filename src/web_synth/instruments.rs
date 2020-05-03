@@ -181,17 +181,17 @@ pub fn get_instrument(name: &str) -> Box<dyn Instrument> {
                 ]
             ),
             "snaredrum" => CustomInstrument::new(
-                Box::new(ADSRFixedEnvelope::new_with_params(0.0, 0.2, 0.0, 0.0, 1.0, 1.0)),
+                Box::new(ADSRFixedEnvelope::new_with_params(0.001, 0.2, 0.0, 0.0, 5.0, 1.0)),
                 vec![
                     InstrumentParam::new(0.5, OscillatorType::Sine, -24, 1.0, 0.5),
                     InstrumentParam::new(0.5, OscillatorType::Noise, 0, 0.0, 0.0)
                 ]
             ),
             "hihat" => CustomInstrument::new(
-                Box::new(ADSRFixedEnvelope::new_with_params(0.01, 0.05, 0.0, 0.0, 1.0, 1.0)),
+                Box::new(ADSRFixedEnvelope::new_with_params(0.01, 0.05, 0.0, 0.0, 5.0, 1.0)),
                 vec![
-                    InstrumentParam::new(0.1, OscillatorType::Square, -12, 1.0, 1.5),
-                    InstrumentParam::new(0.9, OscillatorType::Noise, 0, 0.0, 0.0)
+                    InstrumentParam::new(0.05, OscillatorType::Square, -12, 1.0, 1.5),
+                    InstrumentParam::new(0.95, OscillatorType::Noise, 0, 0.0, 0.0)
                 ]
             ),
             _ => CustomInstrument::new(

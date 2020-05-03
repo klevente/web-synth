@@ -37,6 +37,21 @@ export class WasmWorkletProcessor extends AudioWorkletProcessor {
                 case 'master':
                     this.synthbox.set_master_volume(e.data.volume);
                     break;
+                case 'add_channel':
+                    this.synthbox.add_sequencer_channel(e.data.instrument, e.data.pattern);
+                    break;
+                case 'update_instrument':
+                    this.synthbox.update_channel_instrument(e.data.index, e.data.instrument);
+                    break;
+                case 'update_pattern':
+                    this.synthbox.update_channel_pattern(e.data.index, e.data.pattern);
+                    break;
+                case 'remove_channel':
+                    this.synthbox.remove_channel(e.data.index);
+                    break;
+                case 'update_global_data':
+                    this.synthbox.update_global_data(e.data.beats, e.data.subbeats, e.data.tempo);
+                    break;
             }
         };
     }
@@ -55,9 +70,9 @@ export class WasmWorkletProcessor extends AudioWorkletProcessor {
         this.keys = new Uint8Array(this.memory.buffer, this.keysPtr, 17);
         this.master = new Float64Array(this.memory.buffer, this.masterPtr, 128);
 
-        this.synthbox.add_sequencer_channel("kickdrum",  "x...x...x...x...");
-        this.synthbox.add_sequencer_channel("hihat",     "x.x.x.x.x.x.x.x.");
-        this.synthbox.add_sequencer_channel("snaredrum", "..x...x...x...x.")
+        // this.synthbox.add_sequencer_channel("kickdrum",  "x...x...x...x...");
+        // this.synthbox.add_sequencer_channel("hihat",     "x.x.x.x.x.x.x.x.");
+        // this.synthbox.add_sequencer_channel("snaredrum", "..x...x...x...x.")
     }
 
     process(inputs, outputs, parameters) {
