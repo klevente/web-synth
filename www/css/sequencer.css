@@ -1,5 +1,22 @@
+.sequencer {
+    margin: 16px;
+    width: 80%;
+    min-width: 900px;
+}
+
 .global-settings {
+    align-items: center;
     display: flex;
+    padding: 5px;
+}
+
+.form-group {
+    margin: 5px;
+}
+
+.baseline-button {
+    align-self: flex-end;
+    margin: 5px;
 }
 
 .sequencer-container {
@@ -10,26 +27,51 @@
 
 .sequencer-channel {
     display: flex;
+    flex-direction: row;
     align-items: center;
 }
 
+.channel-number {
+    margin-right: 16px;
+}
+
+.remove-button {
+    margin-right: 16px;
+}
+
+.instrument-select {
+    width: 150px;
+    margin-right: 16px;
+}
+
 .button-note {
-    background: white;
+    /*background: white;
+    border-radius: 3px;*/
+    flex-shrink: 0;
+    outline: none;
     border: 1px solid rgba(94,94,94,.25) !important;
-    border-radius: 3px;
-    height: 20px;
+    height: 30px;
     width: 20px;
+    margin: 2px;
 }
 
-.button-note:hover {
+.btn:focus,.btn:active:focus,.btn.active:focus,
+.btn.focus,.btn:active.focus,.btn.active.focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/*.button-note:hover {
     border: 1px solid rgba(94,94,94,.65) !important;
-}
+}*/
 
-.button-note.selected {
+/*.button-note.selected {
     background: blue;
-}
+}*/
 
-.button-note.active-note {
-    background: yellow !important;
-    border: 2px solid green;
+.note-divider {
+    width: 1px;
+    height: 30px;
+    margin: 0;
+    border-right: 1px solid #333;
 }

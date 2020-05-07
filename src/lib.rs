@@ -30,6 +30,7 @@ pub struct SynthBox {
 impl SynthBox {
 
     pub fn new() -> SynthBox {
+        utils::set_panic_hook();
         SynthBox {
             out_samples: [0.0; 128],
             keyboard: Keyboard::new(),

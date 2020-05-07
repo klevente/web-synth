@@ -3,6 +3,13 @@
     top: 40%;
     transform: rotate(270deg);*/
 
+    margin-top: 70px;
     transform: rotateZ(270deg);
     outline: none;
+}
+
+.vertical-slider-label {
+    display: block;
+    margin-top: 90px;
+    text-align: center;
 }

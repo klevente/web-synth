@@ -2,17 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/sliders.css">
     <link rel="stylesheet" href="css/piano-keyboard.css">
     <link rel="stylesheet" href="css/sequencer.css">
     <title>Web Synth (US/UK layout)</title>
 </head>
 <body>
-    <canvas id="canvas" width="200" height="100"></canvas>
-    <label>
-        Master volume
-        <input id="master-slider" class="vertical-slider" type="range">
-    </label>
+<div class="first-row">
     <div class="keyboard-container">
         <button type="button" id="lowerOctave">˂</button>
         <ul class="piano-keyboard">
@@ -71,23 +70,30 @@
             </li>
         </ul>
         <button type="button" id="raiseOctave">˃</button>
+        <label class="octave-display">Current octave: 0</label>
     </div>
-    <div class="sequencer">
+    <div style="margin-top: 30px;">
+        <input id="master-slider" class="vertical-slider" type="range">
+        <label for="master-slider" class="vertical-slider-label">Master</label>
+    </div>
+</div>
+    <div class="sequencer card card-body">
+        <h3>Sequencer</h3>
         <div class="global-settings">
-            <label for="beats">
-                Beats:
-                <input id="beats" value="4">
-            </label>
-            <label for="subbeats">
-                Subbeats:
-                <input id="subbeats" value="4">
-            </label>
-            <label for="tempo">
-                Tempo:
-                <input id="tempo" value="90">
-            </label>
-            <button id="update">Update</button>
-            <button id="addChannel">Add channel</button>
+            <div class="form-group">
+                <label for="beats">Beats</label>
+                <input id="beats" class="form-control" value="4" placeholder="Number of beats">
+            </div>
+            <div class="form-group">
+                <label for="subbeats">Subbeats</label>
+                <input id="subbeats" class="form-control" value="4" placeholder="Number of notes in a beat">
+            </div>
+            <div class="form-group">
+                <label for="tempo">Tempo</label>
+                <input id="tempo" class="form-control" value="90" placeholder="Tempo in BPM">
+            </div>
+            <button id="update" class="btn btn-primary baseline-button">Update</button>
+            <button id="addChannel" class="btn btn-success baseline-button">Add channel</button>
         </div>
         <div class="sequencer-container"></div>
     </div>

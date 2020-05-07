@@ -133,3 +133,8 @@ ul.piano-keyboard li:last-of-type {
 .key-pressed {
     background: #555555;
 }
+
+.octave-display {
+    display: block;
+    text-align: center;
+}

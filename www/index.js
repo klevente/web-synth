@@ -1,10 +1,13 @@
 let context;
 let loaded = false;
 let worklet;
-const canvas = document.getElementById('canvas').getContext('2d');
-canvas.fillStyle = 'black';
 const keysPressed = Array(17).fill(false);
 let currentOctave = 0;
+
+const updateOctaveDisplay = () => {
+    const display = document.querySelector('.octave-display');
+    display.innerHTML = display.innerHTML.replace(/\d/, currentOctave.toString());
+};
 
 const init = async context => {
     try {
@@ -13,12 +16,6 @@ const init = async context => {
         const masterVolumeParam = worklet.parameters.get('master');
 
         worklet.connect(context.destination);
-
-        canvas.beginPath();
-        canvas.moveTo(0, 0);
-        canvas.lineTo(50, 50);
-        canvas.lineTo(20, 70);
-        canvas.stroke();
 
         await fetch('/pkg/web_synth_bg.wasm')
             .then(r => r.arrayBuffer())
@@ -31,6 +28,7 @@ const init = async context => {
             if (currentOctave > 0) {
                 currentOctave--;
                 worklet.port.postMessage({ type: 'octave', octave: currentOctave });
+                updateOctaveDisplay();
             }
         };
 
@@ -38,6 +36,7 @@ const init = async context => {
             if (currentOctave < 8) {
                 currentOctave++;
                 worklet.port.postMessage({ type: 'octave', octave: currentOctave });
+                updateOctaveDisplay();
             }
         };
 
@@ -62,7 +61,7 @@ window.onload = function () {
 window.onclick = function () {
     if (loaded) {
         context.resume()
-            // .then(() => console.log('context resumed'));
+        // .then(() => console.log('context resumed'));
     }
 };
 
@@ -126,20 +125,19 @@ let tempo = 90.0;
 const sequencerContainer = document.querySelector('.sequencer-container');
 let numOfChannels = 0;
 
-const noteTemplate = () => `<button class="button-note"></button>`;
+// const noteTemplate = () => `<button class="button-note"></button>`;
+const noteTemplate = () => `<button class="button-note btn btn-secondary"></button>`;
+const noteDividerTemplate = () => `<div class="note-divider"></div>`;
 
 const channelTemplateStart = () => `
-    <div class="sequencer-channel">
-        <div class="channel-number">${numOfChannels++}</div>
-        <button class="remove-button">Remove</button>
-        <label>
-            Instrument:
-            <select class="instrument-select">
-                <option value="kickdrum">Kick Drum</option>
-                <option value="snaredrum">Snare Drum</option>
-                <option value="hihat">Hihat</option>
-            </select>
-        </label>`; // <- notes come here below
+    <div class="sequencer-channel card card-body">
+        <h5 class="channel-number text-monospace">${numOfChannels++}</h5>
+        <button class="remove-button btn btn-danger">Remove</button>
+        <select class="instrument-select form-control">
+            <option value="kickdrum">Kick Drum</option>
+            <option value="snaredrum">Snare Drum</option>
+            <option value="hihat">Hihat</option>
+        </select>`; // <- notes come here below
 
 const channelTemplateEnd = () => `</div>`;
 
@@ -169,9 +167,11 @@ function updateChannelPattern(channelIndex) {
         .map(note => {
                 let mappedNote = note.classList
                     .toString()
+                    .replace('btn', '')
                     .replace('button-note', '')
+                    .replace('btn-secondary', '')
                     .trim();
-                if (mappedNote === 'selected') {
+                if (mappedNote === 'btn-primary') {
                     mappedNote = 'x';
                 }
                 if (mappedNote === '') {
@@ -190,9 +190,16 @@ function setButtonListeners() {
     document.querySelectorAll('.button-note')
         .forEach(button => {
             button.onclick = function (event) {
-                this.classList.contains('selected')
+                /*this.classList.contains('selected')
                     ? this.classList.remove('selected')
-                    : this.classList.add('selected');
+                    : this.classList.add('selected');*/
+                if (this.classList.contains('btn-primary')) {
+                    this.classList.remove('btn-primary');
+                    this.classList.add('btn-secondary');
+                } else {
+                    this.classList.remove('btn-secondary');
+                    this.classList.add('btn-primary');
+                }
 
                 updateChannelPattern(getChannelIndex(event));
             }
@@ -212,9 +219,13 @@ function setButtonListeners() {
     document.querySelectorAll('.instrument-select')
         .forEach(select => {
             select.onchange = function (event) {
-                const channel = event.currentTarget.parentNode.parentNode.firstElementChild.innerHTML;
+                const channel = getChannelIndex(event);
                 console.log(channel);
-                worklet.port.postMessage({ type: 'update_instrument', index: channel, instrument: event.currentTarget.value });
+                worklet.port.postMessage({
+                    type: 'update_instrument',
+                    index: channel,
+                    instrument: event.currentTarget.value
+                });
             }
         });
 }
@@ -222,8 +233,13 @@ function setButtonListeners() {
 function addChannel() {
     console.log(`adding channel ${numOfChannels}`);
     let channelHtml = channelTemplateStart();
-    for (let i = 0; i < beats * subbeats; i++) {
-        channelHtml += noteTemplate();
+    for (let i = 0; i < beats; i++) {
+        for (let j = 0; j < subbeats; j++) {
+            channelHtml += noteTemplate();
+        }
+        if (i < beats - 1) {
+            channelHtml += noteDividerTemplate();
+        }
     }
     channelHtml += channelTemplateEnd();
     sequencerContainer.insertAdjacentHTML('beforeend', channelHtml);

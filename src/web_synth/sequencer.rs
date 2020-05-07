@@ -5,7 +5,7 @@ use web_sys::console;
 
 struct Channel {
     instrument: Box<dyn Instrument>,
-    pattern: Vec<BeatNote>
+    pattern: Vec<BeatNote>,
 }
 
 impl Channel {
@@ -30,7 +30,7 @@ impl Channel {
 
         Channel {
             instrument,
-            pattern: Channel::build_pattern(pattern)
+            pattern: Channel::build_pattern(pattern),
         }
     }
 
@@ -49,7 +49,7 @@ impl Channel {
                 match c {
                     'x' => BeatNote::Present { note_id: 20 },
                     '.' => BeatNote::Empty,
-                    _ =>   BeatNote::Empty
+                    _ => BeatNote::Empty
                 }
             })
             .collect()
@@ -59,7 +59,7 @@ impl Channel {
 #[derive(Debug)]
 enum BeatNote {
     Empty,
-    Present { note_id: u32 } // add extra params, like length here
+    Present { note_id: u32 }, // add extra params, like length here
 }
 
 pub struct MultiSequencer {
@@ -71,8 +71,9 @@ pub struct MultiSequencer {
 
     notes: Vec<Note>,
 
-    channels: Vec<Channel>
+    channels: Vec<Channel>,
 }
+
 impl MutSource for MultiSequencer {
     fn get_sample_block(&mut self, t: f64) -> [f64; 128] {
         let mut output: [f64; 128] = [0.0; 128];
@@ -82,7 +83,7 @@ impl MutSource for MultiSequencer {
                 self.elapsed_time -= self.beat_time;
 
                 for (channel_idx, channel) in self.channels.iter().enumerate() {
-                    let current_beat: &BeatNote = channel.pattern.get(self.current_beat).unwrap();
+                    let current_beat: &BeatNote = channel.pattern.get(self.current_beat).unwrap_or(&BeatNote::Empty);
                     console::log_1(&format!("{:?}", current_beat).into());
 
                     match current_beat {
@@ -102,11 +103,20 @@ impl MutSource for MultiSequencer {
 
             for n in self.notes.iter_mut() {
                 let mut note_finished = false;
-                output[i] += self.channels
-                    .get(n.channel)
-                    .unwrap()
-                    .instrument
-                    .sound(calc_offset_time(t, i), n, &mut note_finished);
+                output[i] +=
+                    match self.channels
+                        .get(n.channel) {
+                        Some(channel) => {
+                            channel
+                                .instrument
+                                .sound(calc_offset_time(t, i), n, &mut note_finished)
+                        }
+                        None => {
+                            console::log_2(&"Did not find channel:".into(), &(n.channel as u32).into());
+                            0.0
+                        }
+                    };
+
 
                 if note_finished {
                     n.active = false;
@@ -131,7 +141,7 @@ impl MultiSequencer {
 
             notes: Vec::with_capacity(16),
 
-            channels: Vec::with_capacity(8)
+            channels: Vec::with_capacity(8),
         }
     }
 
@@ -155,6 +165,7 @@ impl MultiSequencer {
     }
 
     pub fn remove_channel(&mut self, channel_index: usize) {
+        self.notes.retain(|n| n.channel != channel_index);
         self.channels.remove(channel_index);
     }
 
@@ -187,7 +198,7 @@ pub struct Sequencer {
     elapsed_time: f64,
     all_beats: u32,
     current_beat: u32,
-    master_volume: f64
+    master_volume: f64,
 }
 
 impl MutSource for Sequencer {
@@ -239,7 +250,7 @@ impl Sequencer {
             elapsed_time: 0.0,
             all_beats: beats * subbeats,
             current_beat: 0,
-            master_volume: 0.2
+            master_volume: 0.2,
         }
     }
 
